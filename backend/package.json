@@ -4,12 +4,20 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build-run": "tsc && per-env",
+    "build-run:development": "nodemon ./target/bin/www.js",
+    "build-run:production": "node ./target/bin/www.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "per-env",
+    "start:development": "nodemon ./target/bin/www.js",
+    "start:production": "node ./target/bin/www.js",
+    "build": "node psql-setup-script.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@prisma/client": "5.19.1",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "csurf": "^1.11.0",
@@ -24,7 +32,11 @@
     "prisma": "^5.19.1"
   },
   "devDependencies": {
+    "@types/cookie-parser": "^1.4.7",
+    "@types/cors": "^2.8.17",
+    "@types/csurf": "^1.11.5",
     "@types/express": "^4.17.21",
+    "@types/morgan": "^1.9.9",
     "@types/node": "^22.5.5",
     "dotenv-cli": "^7.4.2",
     "nodemon": "^3.1.5",

@@ -3,3 +3,4 @@ node_modules
 Build
 .DS_Store
 *.db
+target
