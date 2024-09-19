@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
+  "prisma": {
+    "seed": "node target/prisma/seed.js"
+  },
   "scripts": {
     "build-run": "tsc && per-env",
     "build-run:development": "nodemon ./target/bin/www.js",
@@ -18,6 +22,7 @@
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "5.19.1",
+    "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "csurf": "^1.11.0",
@@ -32,6 +37,7 @@
     "prisma": "^5.19.1"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/cookie-parser": "^1.4.7",
     "@types/cors": "^2.8.17",
     "@types/csurf": "^1.11.5",
