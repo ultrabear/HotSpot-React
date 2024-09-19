@@ -24,7 +24,10 @@ const err = () => {
 const expiresIn = parseInt(expiresInStr!);
 const secret = secretRaw ? secretRaw : err();
 
-export function setTokenCookie(res: Response, user: User): string {
+export function setTokenCookie(
+	res: Response,
+	user: { id: number; email: string; username: string },
+): string {
 	const safeUser = {
 		id: user.id,
 		email: user.email,
