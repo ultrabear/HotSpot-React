@@ -33,10 +33,8 @@ app.use(
 	}),
 );
 
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "./dbclient.js";
 import { PrismaClientValidationError } from "@prisma/client/runtime/library";
-
-const prisma = new PrismaClient();
 
 import routes from "./routes/index.js";
 

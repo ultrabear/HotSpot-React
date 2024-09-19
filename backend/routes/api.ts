@@ -1,13 +1,9 @@
-import express from 'express';
+import express from "express";
 
 const router = express.Router();
 
+import { restoreUser } from "../utils/auth.js";
 
-router.post('/test', function(req, res) {
-  res.json({ requestBody: req.body });
-});
-
-
-
+router.use(restoreUser);
 
 export default router;
