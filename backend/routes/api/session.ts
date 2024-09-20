@@ -1,4 +1,6 @@
-import { Router } from "express";
+import { Router, Request, Response, NextFunction } from "express";
+import { check } from "express-validator";
+import {handleValidationErrors } from "../../utils/validation.js"
 
 const router = Router();
 
@@ -6,7 +8,20 @@ import bcrypt from "bcryptjs";
 import { setTokenCookie, restoreUser } from "../../utils/auth.js";
 import { prisma } from "../../dbclient.js";
 
-router.post("/", async (req, res, next) => {
+
+
+const validateLogin = [
+	check('credential')
+	  .exists({ checkFalsy: true })
+	  .notEmpty()
+	  .withMessage('Please provide a valid email or username.'),
+	check('password')
+	  .exists({ checkFalsy: true })
+	  .withMessage('Please provide a password.'),
+	handleValidationErrors
+  ];
+
+router.post("/",validateLogin, async (req: Request, res: Response, next: NextFunction) => {
 	const { credential, password } = req.body;
 
 	const user = await prisma.user.findFirst({
