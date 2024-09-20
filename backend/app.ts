@@ -40,6 +40,14 @@ import routes from "./routes/index.js";
 
 app.use(routes);
 
+declare global {
+	export interface Error {
+		title?: string;
+		status?: number;
+		errors?: { [key: string]: any };
+	}
+}
+
 app.use(async (_req, _res, next) => {
 	const err = new Error("Requested resource could not be found.") as Error & {
 		title: string;
