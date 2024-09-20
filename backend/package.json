@@ -8,6 +8,7 @@
     "seed": "node target/prisma/seed.js"
   },
   "scripts": {
+    "init-repo": "tsc && dotenv prisma db push",
     "build-run": "tsc && per-env",
     "build-run:development": "nodemon ./target/bin/www.js",
     "build-run:production": "node ./target/bin/www.js",
