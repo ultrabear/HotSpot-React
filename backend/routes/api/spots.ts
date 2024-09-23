@@ -33,6 +33,20 @@ function transformSpot(
 	};
 }
 
+router.get("/current", requireAuth, async (req, res) => {
+	const allSpots = await prisma.spot.findMany({
+		where: { ownerId: req.user!.id },
+		include: {
+			images: { where: { preview: true }, select: { url: true } },
+			reviews: { select: { stars: true } },
+		},
+	});
+
+	const modspots = allSpots.map(transformSpot);
+
+	res.json({ Spots: modspots });
+});
+
 router.get("/:spotId", async (req, res) => {
 	let spot = await prisma.spot.findFirst({
 		where: { id: Number(req.params.spotId) },
@@ -58,20 +72,6 @@ router.get("/:spotId", async (req, res) => {
 	} else {
 		return res.status(404).json({ message: "Spot couldn't be found" });
 	}
-});
-
-router.get("/current", requireAuth, async (req, res) => {
-	const allSpots = await prisma.spot.findMany({
-		where: { ownerId: req.user!.id },
-		include: {
-			images: { where: { preview: true }, select: { url: true } },
-			reviews: { select: { stars: true } },
-		},
-	});
-
-	const modspots = allSpots.map(transformSpot);
-
-	res.json({ Spots: modspots });
 });
 
 router.get("/", async (req, res) => {
