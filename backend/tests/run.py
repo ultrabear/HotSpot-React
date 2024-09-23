@@ -2,11 +2,12 @@ import subprocess
 import random
 import base64
 import sys
-import argparse
 import glob
 import os
 
-url = "http://localhost:5000"
+PORT = os.environ.get("PORT")
+
+url = f"http://localhost:{PORT}"
 
 
 def main():
