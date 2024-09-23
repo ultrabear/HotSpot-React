@@ -12,7 +12,7 @@
     "build-run": "tsc && per-env",
     "build-run:development": "dotenv nodemon ./target/bin/www.js",
     "build-run:production": "node ./target/bin/www.js",
-    "test": "python tests/run.py",
+    "test": "python3 tests/run.py",
     "start": "per-env",
     "start:development": "dotenv nodemon ./target/bin/www.js",
     "start:production": "node ./target/bin/www.js",
