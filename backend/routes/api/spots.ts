@@ -12,18 +12,9 @@ import {
 
 const router = Router();
 
-router.get('/', async (req, res) => {
-
-  const allSpots  =  await prisma.spot.findMany()
-  res.json({Spots: allSpots})
-
-})
-
-
-
-
-
-
-
+router.get("/", async (req, res) => {
+	const allSpots = await prisma.spot.findMany();
+	res.json({ Spots: allSpots });
+});
 
 export default router;
