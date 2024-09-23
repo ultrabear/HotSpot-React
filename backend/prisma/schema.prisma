@@ -13,12 +13,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model User {
-  id Int @id @default(autoincrement())
-  username String @db.VarChar(30) @unique
-  email String @db.VarChar(256) @unique
-  hashedPassword String @db.VarChar(60) 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
+  id             Int      @id @default(autoincrement())
+  username       String   @unique @db.VarChar(30)
+  email          String   @unique @db.VarChar(256)
+  hashedPassword String   @db.VarChar(60)
+  firstName      String   @db.Text
+  lastName       String   @db.Text
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @default(now())
 }
