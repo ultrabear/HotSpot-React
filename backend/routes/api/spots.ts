@@ -33,17 +33,31 @@ function transformSpot(
 	};
 }
 
-router.get("/", async (req, res) => {
-	const allSpots = await prisma.spot.findMany({
+router.get("/:spotId", async (req, res) => {
+	let spot = await prisma.spot.findFirst({
+		where: { id: Number(req.params.spotId) },
 		include: {
-			images: { where: { preview: true }, select: { url: true } },
+			images: { select: { id: true, url: true, preview: true } },
 			reviews: { select: { stars: true } },
+			owner: {
+				select: { id: true, firstName: true, lastName: true },
+			},
 		},
 	});
 
-	const modspots = allSpots.map(transformSpot);
+	if (spot) {
+		const { reviews, images, owner, ...rest } = spot;
 
-	res.json({ Spots: modspots });
+		return res.json({
+			...rest,
+			numReviews: reviews.length,
+			avgStarRating: reviews.reduce((a, i) => a + i.stars, 0) / reviews.length,
+			SpotImages: images,
+			Owner: owner,
+		});
+	} else {
+		return res.status(404).json({ message: "Spot couldn't be found" });
+	}
 });
 
 router.get("/current", requireAuth, async (req, res) => {
@@ -60,4 +74,16 @@ router.get("/current", requireAuth, async (req, res) => {
 	res.json({ Spots: modspots });
 });
 
+router.get("/", async (req, res) => {
+	const allSpots = await prisma.spot.findMany({
+		include: {
+			images: { where: { preview: true }, select: { url: true } },
+			reviews: { select: { stars: true } },
+		},
+	});
+
+	const modspots = allSpots.map(transformSpot);
+
+	res.json({ Spots: modspots });
+});
 export default router;
