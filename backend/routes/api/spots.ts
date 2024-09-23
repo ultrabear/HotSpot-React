@@ -78,6 +78,50 @@ router.get("/:spotId", async (req, res) => {
 	}
 });
 
+const validateNewSpotImage = [
+	check("url").exists({ checkFalsy: true }).withMessage("URL is required"),
+	check("preview")
+		.exists({ checkFalsy: true })
+		.isBoolean()
+		.withMessage("Preview flag is required"),
+
+	handleValidationErrors,
+];
+
+router.post(
+	"/:spotId/images",
+	requireAuth,
+	validateNewSpotImage,
+	async (req: Request, res: Response) => {
+		const user = req.user!;
+		let spotId = req.params["spotId"];
+
+		const { url, preview } = req.body;
+
+		if (isNaN(Number(spotId))) {
+			return res.status(404).json({ message: "Spot couldn't be found" });
+		}
+
+		let spot = await prisma.spot.findFirst({ where: { id: Number(spotId) } });
+
+		if (spot) {
+			if (spot.ownerId !== user.id) {
+				return res
+					.status(403)
+					.json({ message: "You do not have permission to modify this spot" });
+			}
+
+			const img = await prisma.spotImage.create({
+				data: { url, preview, spotId: spot.id },
+			});
+
+			return res.status(201).json({ id: img.id, url, preview });
+		} else {
+			return res.status(404).json({ message: "Spot couldn't be found" });
+		}
+	},
+);
+
 router.get("/", async (req, res) => {
 	const allSpots = await prisma.spot.findMany({
 		include: {

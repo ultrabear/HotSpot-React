@@ -73,6 +73,8 @@ XSRF-Token: {{csrf_token}}
   "price": 123
 }
 HTTP 201
+[Captures]
+spot_id: jsonpath "$.id"
 
 POST {{url}}/api/spots
 XSRF-Token: {{csrf_token}}
@@ -89,4 +91,45 @@ HTTP 400
 [Asserts]
 jsonpath "$.message" == "Bad request."
 jsonpath "$.errors" exists
+
+
+POST {{url}}/api/spots/{{spot_id}}/images
+XSRF-Token: {{csrf_token}}
+{
+  "url": "https://fooimage.foo/image.png",
+  "preview": true
+}
+HTTP 201
+[Asserts]
+jsonpath "$.id" exists
+
+POST {{url}}/api/spots/amongus/images
+XSRF-Token: {{csrf_token}}
+{
+  "url": "https://fooimage.foo/image.png",
+  "preview": true
+}
+HTTP 404
+[Asserts]
+jsonpath "$.message" exists
+
+POST {{url}}/api/session
+XSRF-Token: {{csrf_token}}
+{
+  "credential": "demo@user.io",
+  "password": "password1"
+}
+HTTP 200
+
+
+POST {{url}}/api/spots/{{spot_id}}/images
+XSRF-Token: {{csrf_token}}
+{
+  "url": "https://fooimage.foo/image.png",
+  "preview": true
+}
+HTTP 403
+[Asserts]
+jsonpath "$.message" exists
+
 
