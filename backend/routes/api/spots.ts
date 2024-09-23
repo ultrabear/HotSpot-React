@@ -48,6 +48,10 @@ router.get("/current", requireAuth, async (req, res) => {
 });
 
 router.get("/:spotId", async (req, res) => {
+	if (isNaN(Number(req.params.spotId))) {
+		return res.status(404).json({ message: "Spot couldn't be found" });
+	}
+
 	let spot = await prisma.spot.findFirst({
 		where: { id: Number(req.params.spotId) },
 		include: {
@@ -86,4 +90,75 @@ router.get("/", async (req, res) => {
 
 	res.json({ Spots: modspots });
 });
+
+const validateNewSpot = [
+	check("address")
+		.exists({ checkFalsy: true })
+		.withMessage("Street address is required"),
+	check("city").exists({ checkFalsy: true }).withMessage("City is required"),
+	check("state").exists({ checkFalsy: true }).withMessage("State is required"),
+	check("country")
+		.exists({ checkFalsy: true })
+		.withMessage("Country is required"),
+	check("lat")
+		.exists({ checkFalsy: true })
+		.isNumeric()
+		.withMessage("Latitude is not valid"),
+	check("lng")
+		.exists({ checkFalsy: true })
+		.isNumeric()
+		.withMessage("Longitude is not valid"),
+	check("name")
+		.exists({ checkFalsy: true })
+		.isLength({ max: 50 })
+		.withMessage("Name must be less than 50 characters"),
+	check("description")
+		.exists({ checkFalsy: true })
+		.withMessage("Description is required"),
+	check("price")
+		.exists({ checkFalsy: true })
+		.isNumeric()
+		.withMessage("Price per day is required"),
+
+	handleValidationErrors,
+];
+
+router.post(
+	"/",
+	requireAuth,
+	validateNewSpot,
+	async (req: Request, res: Response) => {
+		let user = req.user!;
+
+		const {
+			address,
+			city,
+			state,
+			country,
+			lat,
+			lng,
+			name,
+			description,
+			price,
+		} = req.body;
+
+		const spot = await prisma.spot.create({
+			data: {
+				ownerId: user.id,
+				address,
+				city,
+				state,
+				country,
+				lat,
+				lng,
+				name,
+				description,
+				price,
+			},
+		});
+
+		return res.status(201).json({ ...spot, lat, lng, price });
+	},
+);
+
 export default router;
