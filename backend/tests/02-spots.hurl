@@ -188,7 +188,6 @@ HTTP 400
 jsonpath "$.message" exists
 
 
-
 POST {{url}}/api/session
 XSRF-Token: {{csrf_token}}
 {
@@ -233,5 +232,32 @@ HTTP 404
 jsonpath "$.message" exists
 
 
+
+DELETE {{url}}/api/spots/{{spot_id}}
+XSRF-Token: {{csrf_token}}
+HTTP 403
+[Asserts]
+jsonpath "$.message" exists
+
+POST {{url}}/api/session
+XSRF-Token: {{csrf_token}}
+{
+  "credential": "landowner@evil.inc",
+  "password": "eggs-and-bacon"
+}
+HTTP 200
+
+
+DELETE {{url}}/api/spots/{{spot_id}}
+XSRF-Token: {{csrf_token}}
+HTTP 200
+[Asserts]
+jsonpath "$.message" exists
+
+DELETE {{url}}/api/spots/{{spot_id}}
+XSRF-Token: {{csrf_token}}
+HTTP 404
+[Asserts]
+jsonpath "$.message" exists
 
 

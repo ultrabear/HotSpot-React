@@ -167,6 +167,35 @@ router.put(
 	},
 );
 
+router.delete("/:spotId", requireAuth, async (req, res) => {
+	let user = req.user!;
+
+	let spotId = Number(req.params["spotId"]!);
+
+	if (isNaN(spotId)) {
+		return res.status(404).json({ message: "Spot couldn't be found" });
+	}
+
+	const spot = await prisma.spot.findFirst({
+		where: { id: spotId },
+		select: { id: true, ownerId: true },
+	});
+
+	if (spot) {
+		if (spot.ownerId !== user.id) {
+			return res
+				.status(403)
+				.json({ message: "You do not have permission to delete this spot" });
+		}
+
+		await prisma.spot.delete({ where: { id: spot.id } });
+
+		return res.status(200).json({ message: "Sucessfully deleted" });
+	} else {
+		return res.status(404).json({ message: "Spot couldn't be found" });
+	}
+});
+
 const validateNewSpotImage = [
 	check("url").exists({ checkFalsy: true }).withMessage("URL is required"),
 	check("preview")
