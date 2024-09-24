@@ -196,6 +196,86 @@ router.delete("/:spotId", requireAuth, async (req, res) => {
 	}
 });
 
+router.get("/:spotId/reviews", async (req, res) => {
+	const spotId = Number(req.params.spotId);
+
+	if (isNaN(spotId)) {
+		return res.status(404).json({ message: "Spot couldn't be found" });
+	}
+
+	const reviews = await prisma.review.findMany({
+		where: { spotId },
+		include: {
+			user: { select: { id: true, firstName: true, lastName: true } },
+			images: { select: { id: true, url: true } },
+		},
+	});
+
+	const out = reviews.map((r) => {
+		const { user, images, ...rest } = r;
+
+		return {
+			User: user,
+			ReviewImages: images,
+			...rest,
+		};
+	});
+
+	return res.json({ Reviews: out });
+});
+
+const validateNewReview = [
+	check("review")
+		.exists({ checkFalsy: true })
+		.isString()
+		.withMessage("Review text is required"),
+	check("stars").exists({ checkFalsy: true }).isInt({ min: 1, max: 5 }),
+
+	handleValidationErrors,
+];
+
+router.post(
+	"/:spotId/reviews",
+	requireAuth,
+	validateNewReview,
+	async (req: Request, res: Response) => {
+		const user = req.user!;
+		const spotId = Number(req.params["spotId"]!);
+
+		const { review, stars } = req.body;
+
+		if (isNaN(spotId)) {
+			return res.status(404).json({ message: "Spot couldn't be found" });
+		}
+
+		const spot = await prisma.spot.findFirst({
+			where: { id: spotId },
+			include: { reviews: { where: { userId: user.id } } },
+		});
+
+		if (spot) {
+			if (spot.reviews.length) {
+				return res
+					.status(500)
+					.json({ message: "User already has a review for this spot" });
+			}
+
+			const rev = await prisma.review.create({
+				data: {
+					userId: user.id,
+					spotId: spot.id,
+					review: String(review),
+					stars: Number(stars),
+				},
+			});
+
+			return res.status(201).json(rev);
+		} else {
+			return res.status(404).json({ message: "Spot couldn't be found" });
+		}
+	},
+);
+
 const validateNewSpotImage = [
 	check("url").exists({ checkFalsy: true }).withMessage("URL is required"),
 	check("preview")

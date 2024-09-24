@@ -88,6 +88,8 @@ model Review {
   updatedAt  DateTime @default(now())
 
   images ReviewImage[]
+
+  @@unique([userId, spotId])
 }
 
 model ReviewImage {
