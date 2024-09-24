@@ -154,6 +154,12 @@ router.put(
 
 			return res.status(200).json(changed);
 		} catch (e) {
+			if (await prisma.review.findFirst({ where: { id: Number(reviewId) } })) {
+				return res
+					.status(403)
+					.json({ message: "You do not have permission to edit this review" });
+			}
+
 			return res.status(404).json({ message: "Review couldn't be found" });
 		}
 	},

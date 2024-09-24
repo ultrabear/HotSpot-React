@@ -173,3 +173,40 @@ HTTP 200
 [Asserts]
 jsonpath "$.review" ==  "this review has been taken down due to being created by the spot owner"
 
+POST {{url}}/api/session
+XSRF-Token: {{csrf_token}}
+{
+  "credential": "demo@user.io",
+  "password": "password1"
+}
+HTTP 200
+
+PUT {{url}}/api/reviews/{{review_id}}
+XSRF-Token: {{csrf_token}}
+{
+  "review": "this review has been taken down due to being created by the spot owner",
+  "stars": 1
+}
+HTTP 403
+[Asserts]
+jsonpath "$.message" exists
+
+
+PUT {{url}}/api/reviews/{{review_id}}
+XSRF-Token: {{csrf_token}}
+{
+  "stars": 1
+}
+HTTP 400
+[Asserts]
+jsonpath "$.message" exists
+
+PUT {{url}}/api/reviews/dsfgjdnsfgkdsjlngf
+XSRF-Token: {{csrf_token}}
+{
+  "stars": 1,
+  "review": "amogus"
+}
+HTTP 404
+[Asserts]
+jsonpath "$.message" exists
