@@ -133,3 +133,131 @@ HTTP 403
 jsonpath "$.message" exists
 
 
+POST {{url}}/api/session
+XSRF-Token: {{csrf_token}}
+{
+  "credential": "landowner@evil.inc",
+  "password": "eggs-and-bacon"
+}
+HTTP 200
+
+PUT {{url}}/api/spots/{{spot_id}}
+XSRF-Token: {{csrf_token}}
+{
+  "address": "123 Disney Lane",
+  "city": "San Francisco",
+  "state": "California",
+  "country": "United States of America",
+  "lat": 37.7645358,
+  "lng": -122.4730327,
+  "name": "App Academy",
+  "description": "Place where web developers are created",
+  "price": 123
+}
+HTTP 200
+[Asserts]
+jsonpath "$.name" exists
+jsonpath "$.id" exists
+jsonpath "$.ownerId" exists
+jsonpath "$.address" exists
+jsonpath "$.city" exists
+jsonpath "$.state" exists
+jsonpath "$.country" exists
+jsonpath "$.lat" exists
+jsonpath "$.lng" exists
+jsonpath "$.description" exists
+jsonpath "$.price" exists
+jsonpath "$.createdAt" exists
+jsonpath "$..updatedAt" exists
+jsonpath "$.id" == {{spot_id}}
+
+PUT {{url}}/api/spots/{{spot_id}}
+XSRF-Token: {{csrf_token}}
+{
+  "address": "123 Disney Lane",
+  "state": "California",
+  "country": "United States of America",
+  "lat": 37.7645358,
+  "lng": -122.4730327,
+  "name": "App Academy",
+  "description": "Place where web developers are created",
+  "price": 123
+}
+HTTP 400
+[Asserts]
+jsonpath "$.message" exists
+
+
+POST {{url}}/api/session
+XSRF-Token: {{csrf_token}}
+{
+  "credential": "demo@user.io",
+  "password": "password1"
+}
+HTTP 200
+
+PUT {{url}}/api/spots/{{spot_id}}
+XSRF-Token: {{csrf_token}}
+{
+  "address": "123 Disney Lane",
+  "city": "San Francisco",
+  "state": "California",
+  "country": "United States of America",
+  "lat": 37.7645358,
+  "lng": -122.4730327,
+  "name": "App Academy",
+  "description": "Place where web developers are created",
+  "price": 123
+}
+HTTP 403
+[Asserts]
+jsonpath "$.message" exists
+
+
+PUT {{url}}/api/spots/null
+XSRF-Token: {{csrf_token}}
+{
+  "address": "123 Disney Lane",
+  "city": "San Francisco",
+  "state": "California",
+  "country": "United States of America",
+  "lat": 37.7645358,
+  "lng": -122.4730327,
+  "name": "App Academy",
+  "description": "Place where web developers are created",
+  "price": 123
+}
+HTTP 404
+[Asserts]
+jsonpath "$.message" exists
+
+
+
+DELETE {{url}}/api/spots/{{spot_id}}
+XSRF-Token: {{csrf_token}}
+HTTP 403
+[Asserts]
+jsonpath "$.message" exists
+
+POST {{url}}/api/session
+XSRF-Token: {{csrf_token}}
+{
+  "credential": "landowner@evil.inc",
+  "password": "eggs-and-bacon"
+}
+HTTP 200
+
+
+DELETE {{url}}/api/spots/{{spot_id}}
+XSRF-Token: {{csrf_token}}
+HTTP 200
+[Asserts]
+jsonpath "$.message" exists
+
+DELETE {{url}}/api/spots/{{spot_id}}
+XSRF-Token: {{csrf_token}}
+HTTP 404
+[Asserts]
+jsonpath "$.message" exists
+
+

@@ -31,9 +31,9 @@ model User {
 
 model Booking {
   id        Int      @id @default(autoincrement())
-  spot      Spot     @relation(fields: [spotId], references: [id])
+  spot      Spot     @relation(fields: [spotId], references: [id], onDelete: Cascade)
   spotId    Int
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int
   startDate DateTime @db.Date
   endDate   DateTime @db.Date
@@ -44,7 +44,7 @@ model Booking {
 
 model Spot {
   id          Int     @id @default(autoincrement())
-  owner       User    @relation(fields: [ownerId], references: [id])
+  owner       User    @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId     Int
   address     String
   city        String
@@ -66,7 +66,7 @@ model Spot {
 
 model SpotImage {
   id      Int     @id @default(autoincrement())
-  spot    Spot    @relation(fields: [spotId], references: [id])
+  spot    Spot    @relation(fields: [spotId], references: [id], onDelete: Cascade)
   spotId  Int
   url     String
   preview Boolean
@@ -77,9 +77,9 @@ model SpotImage {
 
 model Review {
   id     Int    @id @default(autoincrement())
-  spot   Spot   @relation(fields: [spotId], references: [id])
+  spot   Spot   @relation(fields: [spotId], references: [id], onDelete: Cascade) 
   spotId Int
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int
   review String
   stars  Int
@@ -88,11 +88,13 @@ model Review {
   updatedAt  DateTime @default(now())
 
   images ReviewImage[]
+
+  @@unique([userId, spotId])
 }
 
 model ReviewImage {
   id       Int    @id @default(autoincrement())
-  review   Review @relation(fields: [reviewId], references: [id])
+  review   Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
   reviewId Int
   url      String
 
