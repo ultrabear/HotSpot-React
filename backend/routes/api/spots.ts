@@ -47,6 +47,38 @@ router.get("/current", requireAuth, async (req, res) => {
 	res.json({ Spots: modspots });
 });
 
+const validateNewSpot = [
+	check("address")
+		.exists({ checkFalsy: true })
+		.withMessage("Street address is required"),
+	check("city").exists({ checkFalsy: true }).withMessage("City is required"),
+	check("state").exists({ checkFalsy: true }).withMessage("State is required"),
+	check("country")
+		.exists({ checkFalsy: true })
+		.withMessage("Country is required"),
+	check("lat")
+		.exists({ checkFalsy: true })
+		.isNumeric()
+		.withMessage("Latitude is not valid"),
+	check("lng")
+		.exists({ checkFalsy: true })
+		.isNumeric()
+		.withMessage("Longitude is not valid"),
+	check("name")
+		.exists({ checkFalsy: true })
+		.isLength({ max: 50 })
+		.withMessage("Name must be less than 50 characters"),
+	check("description")
+		.exists({ checkFalsy: true })
+		.withMessage("Description is required"),
+	check("price")
+		.exists({ checkFalsy: true })
+		.isNumeric()
+		.withMessage("Price per day is required"),
+
+	handleValidationErrors,
+];
+
 router.get("/:spotId", async (req, res) => {
 	if (isNaN(Number(req.params.spotId))) {
 		return res.status(404).json({ message: "Spot couldn't be found" });
@@ -77,6 +109,63 @@ router.get("/:spotId", async (req, res) => {
 		return res.status(404).json({ message: "Spot couldn't be found" });
 	}
 });
+
+router.put(
+	"/:spotId",
+	requireAuth,
+	validateNewSpot,
+	async (req: Request, res: Response) => {
+		let user = req.user!;
+
+		const {
+			address,
+			city,
+			state,
+			country,
+			lat,
+			lng,
+			name,
+			description,
+			price,
+		} = req.body;
+
+		let spotId = Number(req.params["spotId"]!);
+
+		if (isNaN(spotId)) {
+			return res.status(404).json({ message: "Spot couldn't be found" });
+		}
+
+		const spot = await prisma.spot.findFirst({ where: { id: spotId } });
+
+		if (spot) {
+			if (spot.ownerId !== user.id) {
+				return res
+					.status(403)
+					.json({ message: "You do not have permission to edit this spot" });
+			}
+
+			let updated = await prisma.spot.update({
+				where: { id: spot.id },
+				data: {
+					address,
+					city,
+					state,
+					country,
+					lat,
+					lng,
+					name,
+					description,
+					price,
+					updatedAt: new Date(),
+				},
+			});
+
+			return res.status(200).json({ ...updated, lat, lng, price });
+		} else {
+			return res.status(404).json({ message: "Spot couldn't be found" });
+		}
+	},
+);
 
 const validateNewSpotImage = [
 	check("url").exists({ checkFalsy: true }).withMessage("URL is required"),
@@ -134,38 +223,6 @@ router.get("/", async (req, res) => {
 
 	res.json({ Spots: modspots });
 });
-
-const validateNewSpot = [
-	check("address")
-		.exists({ checkFalsy: true })
-		.withMessage("Street address is required"),
-	check("city").exists({ checkFalsy: true }).withMessage("City is required"),
-	check("state").exists({ checkFalsy: true }).withMessage("State is required"),
-	check("country")
-		.exists({ checkFalsy: true })
-		.withMessage("Country is required"),
-	check("lat")
-		.exists({ checkFalsy: true })
-		.isNumeric()
-		.withMessage("Latitude is not valid"),
-	check("lng")
-		.exists({ checkFalsy: true })
-		.isNumeric()
-		.withMessage("Longitude is not valid"),
-	check("name")
-		.exists({ checkFalsy: true })
-		.isLength({ max: 50 })
-		.withMessage("Name must be less than 50 characters"),
-	check("description")
-		.exists({ checkFalsy: true })
-		.withMessage("Description is required"),
-	check("price")
-		.exists({ checkFalsy: true })
-		.isNumeric()
-		.withMessage("Price per day is required"),
-
-	handleValidationErrors,
-];
 
 router.post(
 	"/",
