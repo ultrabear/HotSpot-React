@@ -33,6 +33,46 @@ function transformSpot(
 	};
 }
 
+function parseSpotId(spotId: string | undefined, res: Response): number | null {
+	try {
+		if (spotId === undefined) {
+			throw Error("spotid not passed");
+		}
+
+		let id = BigInt(spotId);
+
+		if (id !== BigInt.asIntN(33, id)) {
+			throw Error("overflowed u32");
+		}
+
+		return Number(id);
+	} catch (e) {
+		res.status(404).json({ message: "Spot couldn't be found" });
+		return null;
+	}
+}
+
+async function getSpot<T>(
+	id: string | undefined,
+	res: Response,
+	cb: (id: number) => Promise<T>,
+): Promise<T | null> {
+	let spotId = parseSpotId(id, res);
+
+	if (spotId) {
+		let data = await cb(spotId);
+
+		if (data) {
+			return data;
+		}
+
+		res.status(404).json({ message: "Spot couldn't be found" });
+		return null;
+	} else {
+		return null;
+	}
+}
+
 router.get("/current", requireAuth, async (req, res) => {
 	const allSpots = await prisma.spot.findMany({
 		where: { ownerId: req.user!.id },
@@ -80,34 +120,32 @@ const validateNewSpot = [
 ];
 
 router.get("/:spotId", async (req, res) => {
-	if (isNaN(Number(req.params.spotId))) {
-		return res.status(404).json({ message: "Spot couldn't be found" });
-	}
-
-	let spot = await prisma.spot.findFirst({
-		where: { id: Number(req.params.spotId) },
-		include: {
-			images: { select: { id: true, url: true, preview: true } },
-			reviews: { select: { stars: true } },
-			owner: {
-				select: { id: true, firstName: true, lastName: true },
+	const spot = await getSpot(req.params.spotId, res, (spotId) =>
+		prisma.spot.findFirst({
+			where: { id: spotId },
+			include: {
+				images: { select: { id: true, url: true, preview: true } },
+				reviews: { select: { stars: true } },
+				owner: {
+					select: { id: true, firstName: true, lastName: true },
+				},
 			},
-		},
-	});
+		}),
+	);
 
-	if (spot) {
-		const { reviews, images, owner, ...rest } = spot;
-
-		return res.json({
-			...rest,
-			numReviews: reviews.length,
-			avgStarRating: reviews.reduce((a, i) => a + i.stars, 0) / reviews.length,
-			SpotImages: images,
-			Owner: owner,
-		});
-	} else {
-		return res.status(404).json({ message: "Spot couldn't be found" });
+	if (!spot) {
+		return;
 	}
+
+	const { reviews, images, owner, ...rest } = spot;
+
+	return res.json({
+		...rest,
+		numReviews: reviews.length,
+		avgStarRating: reviews.reduce((a, i) => a + i.stars, 0) / reviews.length,
+		SpotImages: images,
+		Owner: owner,
+	});
 });
 
 router.put(
@@ -129,82 +167,134 @@ router.put(
 			price,
 		} = req.body;
 
-		let spotId = Number(req.params["spotId"]!);
+		const spot = await getSpot(req.params["spotId"], res, (id) =>
+			prisma.spot.findUnique({ where: { id } }),
+		);
 
-		if (isNaN(spotId)) {
-			return res.status(404).json({ message: "Spot couldn't be found" });
+		if (!spot) {
+			return;
 		}
 
-		const spot = await prisma.spot.findFirst({ where: { id: spotId } });
-
-		if (spot) {
-			if (spot.ownerId !== user.id) {
-				return res
-					.status(403)
-					.json({ message: "You do not have permission to edit this spot" });
-			}
-
-			let updated = await prisma.spot.update({
-				where: { id: spot.id },
-				data: {
-					address,
-					city,
-					state,
-					country,
-					lat,
-					lng,
-					name,
-					description,
-					price,
-					updatedAt: new Date(),
-				},
-			});
-
-			return res.status(200).json({ ...updated, lat, lng, price });
-		} else {
-			return res.status(404).json({ message: "Spot couldn't be found" });
+		if (spot.ownerId !== user.id) {
+			return res
+				.status(403)
+				.json({ message: "You do not have permission to edit this spot" });
 		}
+
+		let updated = await prisma.spot.update({
+			where: { id: spot.id },
+			data: {
+				address,
+				city,
+				state,
+				country,
+				lat,
+				lng,
+				name,
+				description,
+				price,
+				updatedAt: new Date(),
+			},
+		});
+
+		return res.status(200).json({ ...updated, lat, lng, price });
 	},
 );
 
 router.delete("/:spotId", requireAuth, async (req, res) => {
 	let user = req.user!;
 
-	let spotId = Number(req.params["spotId"]!);
+	const spot = await getSpot(req.params["spotId"], res, (spotId) =>
+		prisma.spot.findFirst({
+			where: { id: spotId },
+			select: { id: true, ownerId: true },
+		}),
+	);
 
-	if (isNaN(spotId)) {
-		return res.status(404).json({ message: "Spot couldn't be found" });
+	if (!spot) {
+		return;
 	}
 
-	const spot = await prisma.spot.findFirst({
-		where: { id: spotId },
-		select: { id: true, ownerId: true },
-	});
-
-	if (spot) {
-		if (spot.ownerId !== user.id) {
-			return res
-				.status(403)
-				.json({ message: "You do not have permission to delete this spot" });
-		}
-
-		await prisma.spot.delete({ where: { id: spot.id } });
-
-		return res.status(200).json({ message: "Sucessfully deleted" });
-	} else {
-		return res.status(404).json({ message: "Spot couldn't be found" });
+	if (spot.ownerId !== user.id) {
+		return res
+			.status(403)
+			.json({ message: "You do not have permission to delete this spot" });
 	}
+
+	await prisma.spot.delete({ where: { id: spot.id } });
+
+	return res.status(200).json({ message: "Sucessfully deleted" });
 });
 
-router.get("/:spotId/reviews", async (req, res) => {
-	const spotId = Number(req.params.spotId);
+/*router.get("/:spotId/bookings", requireAuth, async (req, res) => {
+	const user = req.user!;
 
-	if (isNaN(spotId)) {
-		return res.status(404).json({ message: "Spot couldn't be found" });
+	const spot = await getSpot(req.params["spotId"], res, (id) =>
+		prisma.spot.findUnique({ where: { id } }),
+	);
+
+	if (!spot) {
+		return;
+	}
+
+	if (spot.ownerId == user.id) {
+
+
+		
+	}
+
+
+	let bookings = await prisma.booking.findMany({
+		where: { userId: user.id },
+		include: {
+			spot: {
+				select: {
+					images: { where: { preview: true }, select: { url: true } },
+					id: true,
+					ownerId: true,
+					address: true,
+					city: true,
+					state: true,
+					country: true,
+					lat: true,
+					lng: true,
+					name: true,
+					price: true,
+				},
+			},
+		},
+	});
+
+	const sequelized = bookings.map((b) => {
+		const { spot, startDate, endDate, ...rest } = b;
+
+		const { images, ...spotRest } = spot;
+
+		return {
+			Spot: {
+				previewImage: images[0]?.url ?? "",
+				...spotRest,
+			},
+			startDate: startDate.toDateString(),
+			endDate: endDate.toDateString(),
+			...rest,
+		};
+	});
+
+	return res.json({ Bookings: sequelized });
+});*/
+
+router.get("/:spotId/reviews", async (req, res) => {
+	const spot = await getSpot(req.params.spotId, res, (id) =>
+		prisma.spot.findUnique({ where: { id } }),
+	);
+
+	if (!spot) {
+		return;
 	}
 
 	const reviews = await prisma.review.findMany({
-		where: { spotId },
+		where: { spotId: spot.id },
 		include: {
 			user: { select: { id: true, firstName: true, lastName: true } },
 			images: { select: { id: true, url: true } },
@@ -240,39 +330,36 @@ router.post(
 	validateNewReview,
 	async (req: Request, res: Response) => {
 		const user = req.user!;
-		const spotId = Number(req.params["spotId"]!);
 
 		const { review, stars } = req.body;
 
-		if (isNaN(spotId)) {
-			return res.status(404).json({ message: "Spot couldn't be found" });
+		const spot = await getSpot(req.params["spotId"], res, (spotId) =>
+			prisma.spot.findFirst({
+				where: { id: spotId },
+				include: { reviews: { where: { userId: user.id } } },
+			}),
+		);
+
+		if (!spot) {
+			return;
 		}
 
-		const spot = await prisma.spot.findFirst({
-			where: { id: spotId },
-			include: { reviews: { where: { userId: user.id } } },
+		if (spot.reviews.length) {
+			return res
+				.status(500)
+				.json({ message: "User already has a review for this spot" });
+		}
+
+		const rev = await prisma.review.create({
+			data: {
+				userId: user.id,
+				spotId: spot.id,
+				review: String(review),
+				stars: Number(stars),
+			},
 		});
 
-		if (spot) {
-			if (spot.reviews.length) {
-				return res
-					.status(500)
-					.json({ message: "User already has a review for this spot" });
-			}
-
-			const rev = await prisma.review.create({
-				data: {
-					userId: user.id,
-					spotId: spot.id,
-					review: String(review),
-					stars: Number(stars),
-				},
-			});
-
-			return res.status(201).json(rev);
-		} else {
-			return res.status(404).json({ message: "Spot couldn't be found" });
-		}
+		return res.status(201).json(rev);
 	},
 );
 
@@ -292,31 +379,28 @@ router.post(
 	validateNewSpotImage,
 	async (req: Request, res: Response) => {
 		const user = req.user!;
-		let spotId = req.params["spotId"];
 
 		const { url, preview } = req.body;
 
-		if (isNaN(Number(spotId))) {
-			return res.status(404).json({ message: "Spot couldn't be found" });
+		let spot = await getSpot(req.params["spotId"], res, (spotId) =>
+			prisma.spot.findFirst({ where: { id: spotId } }),
+		);
+
+		if (!spot) {
+			return;
 		}
 
-		let spot = await prisma.spot.findFirst({ where: { id: Number(spotId) } });
-
-		if (spot) {
-			if (spot.ownerId !== user.id) {
-				return res
-					.status(403)
-					.json({ message: "You do not have permission to modify this spot" });
-			}
-
-			const img = await prisma.spotImage.create({
-				data: { url, preview, spotId: spot.id },
-			});
-
-			return res.status(201).json({ id: img.id, url, preview });
-		} else {
-			return res.status(404).json({ message: "Spot couldn't be found" });
+		if (spot.ownerId !== user.id) {
+			return res
+				.status(403)
+				.json({ message: "You do not have permission to modify this spot" });
 		}
+
+		const img = await prisma.spotImage.create({
+			data: { url, preview, spotId: spot.id },
+		});
+
+		return res.status(201).json({ id: img.id, url, preview });
 	},
 );
 
@@ -361,66 +445,55 @@ router.post("/:spotId/bookings", requireAuth, async (req, res, next) => {
 
 	const user = req.user!;
 
-	let spotId;
-	try {
-		spotId = BigInt(req.params["spotId"]!);
+	const spot = await getSpot(req.params["spotId"], res, (id) =>
+		prisma.spot.findUnique({ where: { id } }),
+	);
 
-		if (spotId !== BigInt.asIntN(32, spotId)) {
-			throw Error("overflowed u32");
-		}
-	} catch (e) {
-		return res.status(404).json({ message: "Spot couldn't be found" });
+	if (!spot) {
+		return;
 	}
 
-	const spot = await prisma.spot.findUnique({
-		where: { id: Number(spotId) },
+	if (spot.ownerId == user.id) {
+		return res.status(403).json({
+			message: "You own this spot, and cannot make a booking for it",
+		});
+	}
+
+	let overlap = await bookingOverlap(spot.id, startDate, endDate);
+
+	if (overlap) {
+		let err: {
+			message: string;
+			errors: { startDate?: string; endDate?: string };
+		} = {
+			message: "Sorry, this spot is already booked for the specified dates",
+			errors: {},
+		};
+
+		if (overlap.startDate <= startDate && startDate <= overlap.endDate) {
+			err.errors.startDate = "Start date conflicts with an existing booking";
+		}
+		if (overlap.startDate <= endDate && endDate <= overlap.endDate) {
+			err.errors.endDate = "End date conflicts with an existing booking";
+		}
+
+		return res.status(403).json(err);
+	}
+
+	let booking = await prisma.booking.create({
+		data: {
+			userId: user.id,
+			spotId: spot.id,
+			startDate,
+			endDate,
+		},
 	});
 
-	if (spot) {
-		if (spot.ownerId == user.id) {
-			return res.status(403).json({
-				message: "You own this spot, and cannot make a booking for it",
-			});
-		}
-
-		let overlap = await bookingOverlap(spot.id, startDate, endDate);
-
-		if (overlap) {
-			let err: {
-				message: string;
-				errors: { startDate?: string; endDate?: string };
-			} = {
-				message: "Sorry, this spot is already booked for the specified dates",
-				errors: {},
-			};
-
-			if (overlap.startDate <= startDate && startDate <= overlap.endDate) {
-				err.errors.startDate = "Start date conflicts with an existing booking";
-			}
-			if (overlap.startDate <= endDate && endDate <= overlap.endDate) {
-				err.errors.endDate = "End date conflicts with an existing booking";
-			}
-
-			return res.status(403).json(err);
-		}
-
-		let booking = await prisma.booking.create({
-			data: {
-				userId: user.id,
-				spotId: Number(spotId),
-				startDate,
-				endDate,
-			},
-		});
-
-		return res.status(201).json({
-			...booking,
-			startDate: booking.startDate.toISOString().split("T")[0],
-			endDate: booking.endDate.toISOString().split("T")[0],
-		});
-	} else {
-		return res.status(404).json({ message: "Spot couldn't be found" });
-	}
+	return res.status(201).json({
+		...booking,
+		startDate: booking.startDate.toISOString().split("T")[0],
+		endDate: booking.endDate.toISOString().split("T")[0],
+	});
 });
 
 router.get("/", async (req, res) => {
