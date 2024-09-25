@@ -9,7 +9,7 @@ import {
 	PrismaClientKnownRequestError,
 	PrismaClientValidationError,
 } from "@prisma/client/runtime/library";
-import { Spot } from "@prisma/client";
+import { Booking, Spot } from "@prisma/client";
 
 const router = Router();
 
@@ -333,29 +333,87 @@ const validateNewBooking = [
 	handleValidationErrors,
 ];
 
-router.post("/:spotId/bookings", requireAuth, async (req, res) => {
+function bookingOverlap(
+	spot: number,
+	start: Date,
+	end: Date,
+): Promise<Booking | null> {
+	return prisma.booking.findFirst({
+		where: {
+			spotId: spot,
+			endDate: { gte: start },
+			startDate: { lte: end },
+		},
+	});
+}
 
+router.post("/:spotId/bookings", requireAuth, async (req, res, next) => {
 	const { startDate: sd, endDate: ed } = req.body;
-	const startDate = new Date(sd).toDateString();
+	const startDate = new Date(sd);
 	const endDate = new Date(ed);
 
 	const user = req.user!;
 
-
-
-	prisma.review.findUnique({where: {id: 3}})
-
+	let spotId;
 	try {
+		spotId = BigInt(req.params["spotId"]!);
 
-		await prisma.booking.create()
-
+		if (spotId !== BigInt.asIntN(32, spotId)) {
+			throw Error("overflowed u32");
+		}
+	} catch (e) {
+		return res.status(404).json({ message: "Spot couldn't be found" });
 	}
 
+	const spot = await prisma.spot.findUnique({
+		where: { id: Number(spotId) },
+	});
 
+	if (spot) {
+		if (spot.ownerId == user.id) {
+			return res.status(403).json({
+				message: "You own this spot, and cannot make a booking for it",
+			});
+		}
 
-	
+		let overlap = await bookingOverlap(spot.id, startDate, endDate);
 
+		if (overlap) {
+			let err: {
+				message: string;
+				errors: { startDate?: string; endDate?: string };
+			} = {
+				message: "Sorry, this spot is already booked for the specified dates",
+				errors: {},
+			};
 
+			if (overlap.endDate >= startDate) {
+				err.errors.startDate = "Start date conflicts with an existing booking";
+			}
+			if (overlap.startDate <= endDate) {
+				err.errors.endDate = "End date conflicts with an existing booking";
+			}
+
+			return res.status(403).json(err);
+		}
+
+		let booking = await prisma.booking.create({
+			data: {
+				userId: user.id,
+				spotId: Number(spotId),
+				startDate,
+				endDate,
+			},
+		});
+
+		return res.status(201).json({
+			...booking,
+			startDate: booking.startDate.toDateString(),
+			endDate: booking.endDate.toDateString(),
+		});
+	} else {
+		return res.status(404).json({ message: "Spot couldn't be found" });
+	}
 });
 
 router.get("/", async (req, res) => {
