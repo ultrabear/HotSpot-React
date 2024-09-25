@@ -22,13 +22,13 @@ router.get("/current", requireAuth, async (req, res) => {
 		include: {
 			spot: {
 				include: {
-					images: { select: { url: true } },
+					images: { where: { preview: true }, select: { url: true } },
 				},
 			},
 			images: { select: { url: true, id: true } },
 		},
 	});
-	
+
 	const sequelized = reviews.map((r) => {
 		const { spot, images, ...rest } = r;
 
@@ -51,6 +51,8 @@ router.get("/current", requireAuth, async (req, res) => {
 
 		return out;
 	});
+
+	console.log(sequelized);
 
 	return res.json({ Reviews: sequelized });
 });
