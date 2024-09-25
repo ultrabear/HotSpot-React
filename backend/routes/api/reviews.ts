@@ -148,6 +148,7 @@ router.put(
 				data: {
 					review,
 					stars,
+					updatedAt: new Date(),
 				},
 				where: { id: Number(reviewId), userId: user.id },
 			});
