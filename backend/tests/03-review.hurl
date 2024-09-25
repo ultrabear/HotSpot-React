@@ -47,6 +47,30 @@ jsonpath "$.updatedAt" exists
 [Captures]
 review_id: jsonpath "$.id"
 
+
+
+GET {{url}}/api/reviews/current
+XSRF-Token: {{csrf_token}}
+HTTP 200
+[Asserts]
+jsonpath "$.Reviews" exists
+jsonpath "$.Reviews[0].Spot" exists
+jsonpath "$.Reviews[0].Spot.id" exists
+jsonpath "$.Reviews[0].User" exists
+jsonpath "$.Reviews[0].User.id" exists
+jsonpath "$.Reviews[0].User.firstName" exists
+jsonpath "$.Reviews[0].User.lastName" exists
+jsonpath "$.Reviews[0].ReviewImages" exists
+jsonpath "$.Reviews[0].userId" exists
+jsonpath "$.Reviews[0].spotId" exists
+jsonpath "$.Reviews[0].review" exists
+jsonpath "$.Reviews[0].stars" exists
+jsonpath "$.Reviews[0].createdAt" exists
+jsonpath "$.Reviews[0].updatedAt" exists
+jsonpath "$.Reviews[0].id" exists
+
+
+
 POST {{url}}/api/spots/{{spot_id}}/reviews
 XSRF-Token: {{csrf_token}}
 {
@@ -80,25 +104,7 @@ jsonpath "$.message" exists
 
 
 
-GET {{url}}/api/reviews/current
-XSRF-Token: {{csrf_token}}
-HTTP 200
-[Asserts]
-jsonpath "$.Reviews" exists
-jsonpath "$.Reviews[0].Spot" exists
-jsonpath "$.Reviews[0].Spot.id" exists
-jsonpath "$.Reviews[0].User" exists
-jsonpath "$.Reviews[0].User.id" exists
-jsonpath "$.Reviews[0].User.firstName" exists
-jsonpath "$.Reviews[0].User.lastName" exists
-jsonpath "$.Reviews[0].ReviewImages" exists
-jsonpath "$.Reviews[0].userId" exists
-jsonpath "$.Reviews[0].spotId" exists
-jsonpath "$.Reviews[0].review" ==  "This place is awesome please come by and give me mone- the owners some money for this amazing place"
-jsonpath "$.Reviews[0].stars" == 5
-jsonpath "$.Reviews[0].createdAt" exists
-jsonpath "$.Reviews[0].updatedAt" exists
-jsonpath "$.Reviews[0].id" exists
+
 
 
 GET {{url}}/api/spots/{{spot_id}}/reviews

@@ -63,7 +63,7 @@ app.use(async (_req, _res, next) => {
 // @ts-ignore
 app.use((err, _req, _res, next) => {
 	if (err instanceof PrismaClientValidationError) {
-		(err as any as { title: string }).title = "prisma validation error";
+		err.title = "prisma validation error";
 		(err as any as { errors: string }).errors = err.message;
 	}
 
@@ -74,12 +74,22 @@ app.use((err, _req, _res, next) => {
 app.use((err, _req, res, _next) => {
 	res.status(err.status || 500);
 	console.error(err);
-	res.json({
-		title: err.title || "Server Error",
+	const resp: {
+		title?: any;
+		message: any;
+		errors: any;
+		stack?: any;
+	} = {
 		message: err.message,
 		errors: err.errors,
-		stack: isProduction ? null : err.stack,
-	});
+	};
+
+	if (!isProduction) {
+		resp.title = err.title || "Server Error",
+		resp.stack = err.stack;
+	}
+
+	res.json(resp);
 });
 
 export { app, prisma };

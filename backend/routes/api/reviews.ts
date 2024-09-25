@@ -15,11 +15,10 @@ import { resourceLimits } from "node:worker_threads";
 const router = Router();
 
 router.get("/current", requireAuth, async (req, res) => {
-	// biome-ignore lint/style/noNonNullAssertion: <explanation>
 	const user = req.user!;
 
 	const reviews = await prisma.review.findMany({
-		where: { id: user.id },
+		where: { userId: user.id },
 		include: {
 			spot: {
 				include: {
@@ -52,6 +51,8 @@ router.get("/current", requireAuth, async (req, res) => {
 
 		return out;
 	});
+
+	console.log(sequelized);
 
 	return res.json({ Reviews: sequelized });
 });
@@ -90,7 +91,6 @@ router.delete("/:reviewId", requireAuth, async (req, res) => {
 			message: "Successfully deleted",
 		});
 	} catch (error) {
-		console.error(error);
 		return res.status(500).json({
 			message: "Internal Server Error",
 		});
@@ -191,6 +191,7 @@ router.put(
 				data: {
 					review,
 					stars,
+					updatedAt: new Date(),
 				},
 				where: { id: Number(reviewId), userId: user.id },
 			});
