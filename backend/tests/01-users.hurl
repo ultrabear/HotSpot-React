@@ -37,7 +37,7 @@ XSRF-Token: {{csrf_token}}
 }
 HTTP 400
 [Asserts]
-jsonpath "$.message" == "Bad request."
+jsonpath "$.message" == "Bad Request"
 jsonpath "$.errors.credential" exists
 jsonpath "$.errors.password" exists
 
@@ -129,5 +129,5 @@ XSRF-Token: {{csrf_token}}
 }
 HTTP 400
 [Asserts]
-jsonpath "$.message" == "Bad request."
+jsonpath "$.message" == "Bad Request"
 

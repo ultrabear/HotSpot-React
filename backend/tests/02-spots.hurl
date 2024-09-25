@@ -89,7 +89,7 @@ XSRF-Token: {{csrf_token}}
 }
 HTTP 400
 [Asserts]
-jsonpath "$.message" == "Bad request."
+jsonpath "$.message" == "Bad Request"
 jsonpath "$.errors" exists
 
 
