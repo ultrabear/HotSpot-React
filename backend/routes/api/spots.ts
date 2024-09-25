@@ -320,6 +320,44 @@ router.post(
 	},
 );
 
+const validateNewBooking = [
+	check("startDate")
+		.exists({ checkFalsy: true })
+		.isDate()
+		.withMessage("startDate is required"),
+	check("endDate")
+		.exists({ checkFalsy: true })
+		.isDate()
+		.withMessage("endDate is required"),
+
+	handleValidationErrors,
+];
+
+router.post("/:spotId/bookings", requireAuth, async (req, res) => {
+
+	const { startDate: sd, endDate: ed } = req.body;
+	const startDate = new Date(sd).toDateString();
+	const endDate = new Date(ed);
+
+	const user = req.user!;
+
+
+
+	prisma.review.findUnique({where: {id: 3}})
+
+	try {
+
+		await prisma.booking.create()
+
+	}
+
+
+
+	
+
+
+});
+
 router.get("/", async (req, res) => {
 	const allSpots = await prisma.spot.findMany({
 		include: {
