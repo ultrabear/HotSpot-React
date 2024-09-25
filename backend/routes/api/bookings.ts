@@ -15,10 +15,8 @@ router.get("/current", requireAuth, async (req, res) => {
 		where: { userId: user.id },
 		include: {
 			spot: {
-				include: {
-					images: { where: { preview: true }, select: { url: true } },
-				},
 				select: {
+					images: { where: { preview: true }, select: { url: true } },
 					id: true,
 					ownerId: true,
 					address: true,
@@ -34,27 +32,23 @@ router.get("/current", requireAuth, async (req, res) => {
 		},
 	});
 
-
 	const sequelized = bookings.map((b) => {
-
 		const { spot, startDate, endDate, ...rest } = b;
 
 		const { images, ...spotRest } = spot;
 
 		return {
 			Spot: {
-				previewImage: images[0]?.url,
+				previewImage: images[0]?.url ?? "",
 				...spotRest,
 			},
 			startDate: startDate.toDateString(),
 			endDate: endDate.toDateString(),
-			...rest
-		}
-
+			...rest,
+		};
 	});
 
-	return res.json({Bookings: sequelized});
-
+	return res.json({ Bookings: sequelized });
 });
 
 export default router;

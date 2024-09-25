@@ -131,6 +131,34 @@ HTTP 404
 jsonpath "$.message" == "Spot couldn't be found"
 
 
+
+# GET current user bookings
+GET {{url}}/api/bookings/current
+HTTP 200
+[Asserts]
+jsonpath "$.Bookings" exists
+jsonpath "$.Bookings[*].id" exists 
+jsonpath "$.Bookings[*].spotId" exists 
+jsonpath "$.Bookings[*].Spot" exists 
+jsonpath "$.Bookings[*].Spot.id" exists 
+jsonpath "$.Bookings[*].Spot.ownerId" exists 
+jsonpath "$.Bookings[*].Spot.address" exists 
+jsonpath "$.Bookings[*].Spot.city" exists 
+jsonpath "$.Bookings[*].Spot.state" exists 
+jsonpath "$.Bookings[*].Spot.country" exists 
+jsonpath "$.Bookings[*].Spot.lat" exists 
+jsonpath "$.Bookings[*].Spot.lng" exists 
+jsonpath "$.Bookings[*].Spot.name" exists 
+jsonpath "$.Bookings[*].Spot.price" exists 
+jsonpath "$.Bookings[*].Spot.previewImage" exists 
+jsonpath "$.Bookings[*].userId" exists 
+jsonpath "$.Bookings[*].startDate" exists 
+jsonpath "$.Bookings[*].endDate" exists 
+jsonpath "$.Bookings[*].createdAt" exists 
+jsonpath "$.Bookings[*].updatedAt" exists 
+
+
+
 POST {{url}}/api/session
 XSRF-Token: {{csrf_token}}
 {
