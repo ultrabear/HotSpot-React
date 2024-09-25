@@ -352,6 +352,13 @@ router.post("/:spotId/bookings", requireAuth, async (req, res, next) => {
 	const startDate = new Date(sd);
 	const endDate = new Date(ed);
 
+	if (startDate >= endDate) {
+		return res.status(400).json({
+			message: "Bad Request",
+			errors: { endDate: "endDate cannot be on or before startDate" },
+		});
+	}
+
 	const user = req.user!;
 
 	let spotId;
@@ -387,10 +394,10 @@ router.post("/:spotId/bookings", requireAuth, async (req, res, next) => {
 				errors: {},
 			};
 
-			if (overlap.endDate >= startDate) {
+			if (overlap.startDate <= startDate && startDate <= overlap.endDate) {
 				err.errors.startDate = "Start date conflicts with an existing booking";
 			}
-			if (overlap.startDate <= endDate) {
+			if (overlap.startDate <= endDate && endDate <= overlap.endDate) {
 				err.errors.endDate = "End date conflicts with an existing booking";
 			}
 
@@ -408,8 +415,8 @@ router.post("/:spotId/bookings", requireAuth, async (req, res, next) => {
 
 		return res.status(201).json({
 			...booking,
-			startDate: booking.startDate.toDateString(),
-			endDate: booking.endDate.toDateString(),
+			startDate: booking.startDate.toISOString().split("T")[0],
+			endDate: booking.endDate.toISOString().split("T")[0],
 		});
 	} else {
 		return res.status(404).json({ message: "Spot couldn't be found" });

@@ -29,41 +29,121 @@ HTTP 201
 spot_id: jsonpath "$.id"
 
 
-POST {{url}}/api/spots/{{spot_id}}/reviews
+POST {{url}}/api/session
 XSRF-Token: {{csrf_token}}
 {
-  "review": "This place is awesome please come by and give me mone- the owners some money for this amazing place",
-  "stars": 5
+  "credential": "demo@user.io",
+  "password": "password1"
+}
+HTTP 200
+
+
+POST {{url}}/api/spots/{{spot_id}}/bookings
+XSRF-Token: {{csrf_token}}
+{
+  "startDate": "2020-10-10",
+  "endDate": "2020-10-15"
 }
 HTTP 201
 [Asserts]
 jsonpath "$.id" exists
-jsonpath "$.userId" exists
 jsonpath "$.spotId" exists
-jsonpath "$.review" ==  "This place is awesome please come by and give me mone- the owners some money for this amazing place"
-jsonpath "$.stars" == 5
-jsonpath "$.createdAt" exists
-jsonpath "$.updatedAt" exists
-[Captures]
-review_id: jsonpath "$.id"
+jsonpath "$.userId" exists
+jsonpath "$.startDate" == "2020-10-10"
+jsonpath "$.endDate" == "2020-10-15"
+jsonpath  "$.createdAt" exists
+jsonpath  "$.updatedAt" exists
 
-POST {{url}}/api/spots/{{spot_id}}/reviews
+
+POST {{url}}/api/spots/{{spot_id}}/bookings
 XSRF-Token: {{csrf_token}}
 {
-  "review": "This place is great please come by and give me mone- the owners some money for this amazing place",
-  "stars": 5
+  "startDate": "2020-10-15",
+  "endDate": "2020-10-16"
 }
-HTTP 500
+HTTP 403
 [Asserts]
-jsonpath "$.message" == "User already has a review for this spot"
+jsonpath "$.message" == "Sorry, this spot is already booked for the specified dates"
+jsonpath "$.errors.startDate" == "Start date conflicts with an existing booking"
+jsonpath "$.errors.endDate" not exists
 
 
-POST {{url}}/api/spots/{{spot_id}}/reviews
+POST {{url}}/api/spots/{{spot_id}}/bookings
 XSRF-Token: {{csrf_token}}
 {
-  "stars": 5
+  "startDate": "2020-10-02",
+  "endDate": "2020-10-10"
+}
+HTTP 403
+[Asserts]
+jsonpath "$.message" == "Sorry, this spot is already booked for the specified dates"
+jsonpath "$.errors.endDate" == "End date conflicts with an existing booking"
+jsonpath "$.errors.startDate" not exists
+
+
+POST {{url}}/api/spots/{{spot_id}}/bookings
+XSRF-Token: {{csrf_token}}
+{
+  "startDate": "2020-10-11",
+  "endDate": "2020-10-13"
+}
+HTTP 403
+[Asserts]
+jsonpath "$.message" == "Sorry, this spot is already booked for the specified dates"
+jsonpath "$.errors.endDate" == "End date conflicts with an existing booking"
+jsonpath "$.errors.startDate" == "Start date conflicts with an existing booking"
+
+
+POST {{url}}/api/spots/{{spot_id}}/bookings
+XSRF-Token: {{csrf_token}}
+{
+  "startDate": "2020-10-20",
+  "endDate": "2020-10-20"
 }
 HTTP 400
 [Asserts]
-jsonpath "$.message" exists
-jsonpath "$.errors" exists
+jsonpath "$.message" == "Bad Request"
+jsonpath "$.errors.endDate" == "endDate cannot be on or before startDate"
+
+
+POST {{url}}/api/spots/{{spot_id}}/bookings
+XSRF-Token: {{csrf_token}}
+{
+  "startDate": "2020-10-20",
+  "endDate": "2020-10-19"
+}
+HTTP 400
+[Asserts]
+jsonpath "$.message" == "Bad Request"
+jsonpath "$.errors.endDate" == "endDate cannot be on or before startDate"
+
+
+
+
+POST {{url}}/api/spots/sdfddsfg/bookings
+XSRF-Token: {{csrf_token}}
+{
+  "startDate": "2020-10-20",
+  "endDate": "2020-10-21"
+}
+HTTP 404
+[Asserts]
+jsonpath "$.message" == "Spot couldn't be found"
+
+
+POST {{url}}/api/session
+XSRF-Token: {{csrf_token}}
+{
+  "credential": "landowner@evil.inc",
+  "password": "eggs-and-bacon"
+}
+HTTP 200
+
+POST {{url}}/api/spots/{{spot_id}}/bookings
+XSRF-Token: {{csrf_token}}
+{
+  "startDate": "2021-10-10",
+  "endDate": "2021-10-15"
+}
+HTTP 403
+
