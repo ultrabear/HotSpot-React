@@ -5,7 +5,7 @@ import {
 	parseI32,
 } from "../../utils/validation.js";
 import bcrypt from "bcryptjs";
-import { check } from "express-validator";
+import { check, checkSchema } from "express-validator";
 
 import { setTokenCookie, requireAuth } from "../../utils/auth.js";
 import { prisma } from "../../dbclient.js";
@@ -13,7 +13,7 @@ import {
 	PrismaClientKnownRequestError,
 	PrismaClientValidationError,
 } from "@prisma/client/runtime/library";
-import { Booking, Spot } from "@prisma/client";
+import { Booking, Prisma, Spot } from "@prisma/client";
 
 const router = Router();
 
@@ -471,18 +471,85 @@ router.post("/:spotId/bookings", requireAuth, async (req, res, next) => {
 	});
 });
 
-router.get("/", async (req, res) => {
-	const allSpots = await prisma.spot.findMany({
-		include: {
-			images: { where: { preview: true }, select: { url: true } },
-			reviews: { select: { stars: true } },
-		},
-	});
+const getChecks = checkSchema(
+	{
+		page: { isInt: { options: { min: 1, max: 10 } }, optional: true },
+		size: { isInt: { options: { min: 1, max: 20 } }, optional: true },
+		minLat: { isDecimal: true, optional: true },
+		maxLat: { isDecimal: true, optional: true },
+		minLng: { isDecimal: true, optional: true },
+		maxLng: { isDecimal: true, optional: true },
+		minPrice: { isFloat: { options: { min: 0 } }, optional: true },
+		maxPrice: { isFloat: { options: { min: 0 } }, optional: true },
+	},
+	["query"],
+);
 
-	const modspots = allSpots.map(transformSpot);
+router.get(
+	"/",
+	getChecks,
+	handleValidationErrors,
+	async (req: Request, res: Response) => {
+		const { page, size, minLat, maxLat, minLng, maxLng, minPrice, maxPrice } =
+			req.query;
 
-	res.json({ Spots: modspots });
-});
+		type WhereType = Prisma.Args<typeof prisma.spot, "findMany">["where"];
+
+		const where: WhereType = {};
+
+		let parsedSize = 20;
+		if (size !== undefined) {
+			parsedSize = Number(size);
+		}
+
+		let parsedPage = 1;
+		if (page !== undefined) {
+			parsedPage = Number(page);
+		}
+
+		where.lat = {};
+
+		if (minLat !== undefined) {
+			where.lat.gte = Number(minLat);
+		}
+		if (maxLat !== undefined) {
+			where.lat.lte = Number(maxLat);
+		}
+
+		where.lng = {};
+
+		if (minLng !== undefined) {
+			where.lng.gte = Number(minLng);
+		}
+		if (maxLng !== undefined) {
+			where.lng.lte = Number(maxLng);
+		}
+
+		where.price = {};
+
+		if (minPrice !== undefined) {
+			where.price.gte = Number(minPrice);
+		}
+		if (maxPrice !== undefined) {
+			where.price.lte = Number(maxPrice);
+		}
+
+		const allSpots = await prisma.spot.findMany({
+			include: {
+				images: { where: { preview: true }, select: { url: true } },
+				reviews: { select: { stars: true } },
+			},
+			orderBy: { id: "asc" },
+			where,
+			skip: parsedSize * (parsedPage - 1),
+			take: parsedSize,
+		});
+
+		const modspots = allSpots.map(transformSpot);
+
+		res.json({ Spots: modspots, page: parsedPage, size: parsedSize });
+	},
+);
 
 router.post(
 	"/",
