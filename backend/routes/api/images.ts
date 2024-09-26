@@ -57,7 +57,7 @@ router.delete('/:imageId', async (req, res) => {
 
 // ! delete a review image by imageId
 
-router.delete('/api/review-images/:imageId', async (req, res) => {
+router.delete('/:imageId', async (req, res) => {
     try {
   
       const {imageId} = req.params.imageId;
