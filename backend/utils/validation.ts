@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 
 import { validationResult } from "express-validator";
+import { prisma } from "../dbclient.js";
+import { Booking } from "@prisma/client";
 
 export function handleValidationErrors(
 	req: Request,
@@ -24,4 +26,32 @@ export function handleValidationErrors(
 		next(err);
 	}
 	next();
+}
+
+export function bookingOverlap(
+	spot: number,
+	start: Date,
+	end: Date,
+): Promise<Booking | null> {
+	return prisma.booking.findFirst({
+		where: {
+			spotId: spot,
+			endDate: { gte: start },
+			startDate: { lte: end },
+		},
+	});
+}
+
+export function parseI32(v: string | undefined): number | null {
+	try {
+		const val = BigInt(v!);
+
+		if (val !== BigInt.asIntN(32, val)) {
+			return null;
+		}
+
+		return Number(val);
+	} catch (e) {
+		return null;
+	}
 }
