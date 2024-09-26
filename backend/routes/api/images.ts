@@ -13,7 +13,7 @@ import { prisma } from "../../dbclient.js";
 // ! Delete spot by imageId
 
 
-router.delete('/api/spot-images/:imageId', async (req, res) => {
+router.delete('/:imageId', async (req, res) => {
     try {
   
       const {imageId} = req.params.imageId;
