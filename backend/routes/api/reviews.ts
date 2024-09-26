@@ -60,8 +60,6 @@ router.get("/current", requireAuth, async (req, res) => {
 		return out;
 	});
 
-	console.log(sequelized);
-
 	return res.json({ Reviews: sequelized });
 });
 

@@ -51,4 +51,60 @@ router.get("/current", requireAuth, async (req, res) => {
 	return res.json({ Bookings: sequelized });
 });
 
+
+// delete booking by  bookingid
+
+
+router.delete('/:bookingId', requireAuth, async (req, res) => {
+	return async (req: Request, res: Response) => {
+	  const { bookingId } = req.params;
+  
+	  if (isNaN(Number(bookingId)) || Number(bookingId) > 2 ** 31) {
+		return res.status(404).json({ message: "Booking couldn't be found" });
+	  }
+  
+	  const userId = req.user!.id;
+  
+	  try {
+		const booking = await prisma.booking.findUnique({
+		  where: {
+			id: Number(bookingId),
+		  },
+		  include: {
+			spot: {
+			  select: {
+				ownerId: true,
+			  },
+			},
+		  },
+		});
+  
+		if (!booking) {
+		  if (!(await prisma.booking.findUnique({ where: { id: Number(bookingId) } }))) {
+			return res.status(404).json({ message: "Booking couldn't be found" });
+		  }
+		  return res.status(403).json({ message: "You are not authorized to delete this booking" });
+		}
+  
+		if (booking.userId !== userId && booking.spot.ownerId !== userId) {
+		  return res.status(403).json({ message: "You are not authorized to delete this booking" });
+		}
+  
+		await prisma.booking.delete({ where: { id: Number(bookingId) } });
+		return res.status(200).json({ message: "successfully deleted" });
+	  } catch (error) {
+		console.error(error);
+		return res.status(500).json({ message: "Internal Server Error" });
+	  }
+	};
+  });
+
+
+
+
+
+
+
+
+
 export default router;
