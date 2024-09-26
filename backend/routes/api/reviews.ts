@@ -52,16 +52,13 @@ router.get("/current", requireAuth, async (req, res) => {
 		return out;
 	});
 
-	console.log(sequelized);
-
 	return res.json({ Reviews: sequelized });
 });
 
 router.delete("/:reviewId", requireAuth, async (req, res) => {
-
 	const reviewId = Number(req.params["reviewId"]);
-		if(isNaN(reviewId) || reviewId > 2**31) 
-			res.status(404).json({message: "Review couldn't be found"})
+	if (isNaN(reviewId) || reviewId > 2 ** 31)
+		res.status(404).json({ message: "Review couldn't be found" });
 
 	const userId = req.user!.id;
 
@@ -76,7 +73,7 @@ router.delete("/:reviewId", requireAuth, async (req, res) => {
 		if (!review) {
 			if (!(await prisma.review.findUnique({ where: { id: reviewId } }))) {
 				return res.status(404).json({
-					message: "Review couldn't be found"
+					message: "Review couldn't be found",
 				});
 			}
 			return res.status(403).json({

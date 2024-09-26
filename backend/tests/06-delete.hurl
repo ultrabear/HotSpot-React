@@ -117,6 +117,7 @@ review_image_id: jsonpath "$.id"
 
 
 DELETE {{url}}/api/review-images/{{review_image_id}}
+XSRF-Token: {{csrf_token}}
 HTTP 200
 [Asserts]
 jsonpath "$.message" == "Successfully deleted"
@@ -129,7 +130,7 @@ HTTP 404
 jsonpath "$.message" == "Review Image couldn't be found"
 
 
-POST {{url}}/api/review/{{review_id}}/images
+POST {{url}}/api/reviews/{{review_id}}/images
 XSRF-Token: {{csrf_token}}
 {
   "url": "amogus.txt"
