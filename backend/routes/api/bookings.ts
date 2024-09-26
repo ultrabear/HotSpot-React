@@ -54,8 +54,8 @@ router.get("/current", requireAuth, async (req, res) => {
 
 // delete booking by  bookingid
 
-router.delete('/:bookingId, requireAuth, async (req, res) => {
 
+router.delete('/:bookingId, requireAuth, async (req, res) => {
 	return async (req: Request, res: Response) => {
 	  const { bookingId } = req.params;
   
