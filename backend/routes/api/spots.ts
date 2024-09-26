@@ -1,5 +1,9 @@
 import { Router, Request, Response, NextFunction } from "express";
-import { handleValidationErrors } from "../../utils/validation.js";
+import {
+	handleValidationErrors,
+	bookingOverlap,
+	parseI32,
+} from "../../utils/validation.js";
 import bcrypt from "bcryptjs";
 import { check } from "express-validator";
 
@@ -34,19 +38,11 @@ function transformSpot(
 }
 
 function parseSpotId(spotId: string | undefined, res: Response): number | null {
-	try {
-		if (spotId === undefined) {
-			throw Error("spotid not passed");
-		}
+	const id = parseI32(spotId);
 
-		let id = BigInt(spotId);
-
-		if (id !== BigInt.asIntN(33, id)) {
-			throw Error("overflowed u32");
-		}
-
-		return Number(id);
-	} catch (e) {
+	if (id !== null) {
+		return id;
+	} else {
 		res.status(404).json({ message: "Spot couldn't be found" });
 		return null;
 	}
@@ -409,20 +405,6 @@ const validateNewBooking = [
 
 	handleValidationErrors,
 ];
-
-function bookingOverlap(
-	spot: number,
-	start: Date,
-	end: Date,
-): Promise<Booking | null> {
-	return prisma.booking.findFirst({
-		where: {
-			spotId: spot,
-			endDate: { gte: start },
-			startDate: { lte: end },
-		},
-	});
-}
 
 router.post("/:spotId/bookings", requireAuth, async (req, res, next) => {
 	const { startDate: sd, endDate: ed } = req.body;
