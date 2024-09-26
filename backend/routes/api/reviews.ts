@@ -32,7 +32,15 @@ router.get("/current", requireAuth, async (req, res) => {
 	const sequelized = reviews.map((r) => {
 		const { spot, images, ...rest } = r;
 
-		const { images: spotImages, lat, lng, price, ...restSpot } = spot;
+		const {
+			images: spotImages,
+			lat,
+			lng,
+			price,
+			updatedAt: _u,
+			createdAt: _uu,
+			...restSpot
+		} = spot;
 
 		const out = {
 			User: { id: user.id, firstName: user.firstName, lastName: user.lastName },
@@ -41,7 +49,7 @@ router.get("/current", requireAuth, async (req, res) => {
 				lat: Number(lat),
 				lng: Number(lng),
 				price: Number(price),
-				previewImage: spotImages[0]?.url,
+				previewImage: spotImages[0]?.url ?? "",
 			},
 
 			ReviewImages: images,
@@ -52,16 +60,13 @@ router.get("/current", requireAuth, async (req, res) => {
 		return out;
 	});
 
-	console.log(sequelized);
-
 	return res.json({ Reviews: sequelized });
 });
 
 router.delete("/:reviewId", requireAuth, async (req, res) => {
-
 	const reviewId = Number(req.params["reviewId"]);
-		if(isNaN(reviewId) || reviewId > 2**31) 
-			res.status(404).json({message: "Review couldn't be found"})
+	if (isNaN(reviewId) || reviewId > 2 ** 31)
+		res.status(404).json({ message: "Review couldn't be found" });
 
 	const userId = req.user!.id;
 
@@ -76,7 +81,7 @@ router.delete("/:reviewId", requireAuth, async (req, res) => {
 		if (!review) {
 			if (!(await prisma.review.findUnique({ where: { id: reviewId } }))) {
 				return res.status(404).json({
-					message: "Review couldn't be found"
+					message: "Review couldn't be found",
 				});
 			}
 			return res.status(403).json({
