@@ -1,5 +1,9 @@
 import { Router, Request, Response, NextFunction } from "express";
-import { handleValidationErrors } from "../../utils/validation.js";
+import {
+	handleValidationErrors,
+	bookingOverlap,
+	parseI32,
+} from "../../utils/validation.js";
 import bcrypt from "bcryptjs";
 import { check } from "express-validator";
 
@@ -34,19 +38,11 @@ function transformSpot(
 }
 
 function parseSpotId(spotId: string | undefined, res: Response): number | null {
-	try {
-		if (spotId === undefined) {
-			throw Error("spotid not passed");
-		}
+	const id = parseI32(spotId);
 
-		let id = BigInt(spotId);
-
-		if (id !== BigInt.asIntN(33, id)) {
-			throw Error("overflowed u32");
-		}
-
-		return Number(id);
-	} catch (e) {
+	if (id !== null) {
+		return id;
+	} else {
 		res.status(404).json({ message: "Spot couldn't be found" });
 		return null;
 	}
@@ -71,6 +67,10 @@ async function getSpot<T>(
 	} else {
 		return null;
 	}
+}
+
+function formatDate(d: Date): string {
+	return d.toISOString().split("T")[0]!;
 }
 
 router.get("/current", requireAuth, async (req, res) => {
@@ -226,7 +226,7 @@ router.delete("/:spotId", requireAuth, async (req, res) => {
 	return res.status(200).json({ message: "Successfully deleted" });
 });
 
-/*router.get("/:spotId/bookings", requireAuth, async (req, res) => {
+router.get("/:spotId/bookings", requireAuth, async (req, res) => {
 	const user = req.user!;
 
 	const spot = await getSpot(req.params["spotId"], res, (id) =>
@@ -238,51 +238,40 @@ router.delete("/:spotId", requireAuth, async (req, res) => {
 	}
 
 	if (spot.ownerId == user.id) {
+		const bookings = await prisma.booking.findMany({
+			where: {
+				spotId: spot.id,
+			},
+			select: {
+				user: { select: { id: true, firstName: true, lastName: true } },
+				id: true,
+				spotId: true,
+				startDate: true,
+				endDate: true,
+				createdAt: true,
+				updatedAt: true,
+			},
+		});
 
+		const sequelized = bookings.map((b) => {
+			const { user, ...rest } = b;
 
-		
+			return {
+				User: user,
+				...rest,
+			};
+		});
+
+		return res.json({ Bookings: sequelized });
+	} else {
+		const bookings = await prisma.booking.findMany({
+			where: { spotId: spot.id, userId: user.id },
+			select: { startDate: true, endDate: true, spotId: true },
+		});
+
+		return res.json({ Bookings: bookings });
 	}
-
-
-	let bookings = await prisma.booking.findMany({
-		where: { userId: user.id },
-		include: {
-			spot: {
-				select: {
-					images: { where: { preview: true }, select: { url: true } },
-					id: true,
-					ownerId: true,
-					address: true,
-					city: true,
-					state: true,
-					country: true,
-					lat: true,
-					lng: true,
-					name: true,
-					price: true,
-				},
-			},
-		},
-	});
-
-	const sequelized = bookings.map((b) => {
-		const { spot, startDate, endDate, ...rest } = b;
-
-		const { images, ...spotRest } = spot;
-
-		return {
-			Spot: {
-				previewImage: images[0]?.url ?? "",
-				...spotRest,
-			},
-			startDate: startDate.toDateString(),
-			endDate: endDate.toDateString(),
-			...rest,
-		};
-	});
-
-	return res.json({ Bookings: sequelized });
-});*/
+});
 
 router.get("/:spotId/reviews", async (req, res) => {
 	const spot = await getSpot(req.params.spotId, res, (id) =>
@@ -417,20 +406,6 @@ const validateNewBooking = [
 	handleValidationErrors,
 ];
 
-function bookingOverlap(
-	spot: number,
-	start: Date,
-	end: Date,
-): Promise<Booking | null> {
-	return prisma.booking.findFirst({
-		where: {
-			spotId: spot,
-			endDate: { gte: start },
-			startDate: { lte: end },
-		},
-	});
-}
-
 router.post("/:spotId/bookings", requireAuth, async (req, res, next) => {
 	const { startDate: sd, endDate: ed } = req.body;
 	const startDate = new Date(sd);
@@ -491,8 +466,8 @@ router.post("/:spotId/bookings", requireAuth, async (req, res, next) => {
 
 	return res.status(201).json({
 		...booking,
-		startDate: booking.startDate.toISOString().split("T")[0],
-		endDate: booking.endDate.toISOString().split("T")[0],
+		startDate: formatDate(booking.startDate),
+		endDate: formatDate(booking.endDate),
 	});
 });
 
