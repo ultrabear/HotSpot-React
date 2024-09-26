@@ -8,7 +8,7 @@
 		"seed": "node target/prisma/seed.js"
 	},
 	"scripts": {
-		"init-repo": "npm i && dotenv prisma generate && tsc && dotenv prisma db push --ignore-data-loss",
+		"init-repo": "npm i && dotenv prisma generate && tsc && dotenv prisma db push --accept-data-loss",
 		"build-run": "tsc && per-env",
 		"build-run:development": "dotenv nodemon ./target/bin/www.js",
 		"build-run:production": "node ./target/bin/www.js",
