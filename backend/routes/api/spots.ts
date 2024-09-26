@@ -73,6 +73,10 @@ async function getSpot<T>(
 	}
 }
 
+function formatDate(d: Date): string {
+	return d.toISOString().split("T")[0]!;
+}
+
 router.get("/current", requireAuth, async (req, res) => {
 	const allSpots = await prisma.spot.findMany({
 		where: { ownerId: req.user!.id },
@@ -226,7 +230,7 @@ router.delete("/:spotId", requireAuth, async (req, res) => {
 	return res.status(200).json({ message: "Sucessfully deleted" });
 });
 
-/*router.get("/:spotId/bookings", requireAuth, async (req, res) => {
+router.get("/:spotId/bookings", requireAuth, async (req, res) => {
 	const user = req.user!;
 
 	const spot = await getSpot(req.params["spotId"], res, (id) =>
@@ -238,51 +242,40 @@ router.delete("/:spotId", requireAuth, async (req, res) => {
 	}
 
 	if (spot.ownerId == user.id) {
+		const bookings = await prisma.booking.findMany({
+			where: {
+				spotId: spot.id,
+			},
+			select: {
+				user: { select: { id: true, firstName: true, lastName: true } },
+				id: true,
+				spotId: true,
+				startDate: true,
+				endDate: true,
+				createdAt: true,
+				updatedAt: true,
+			},
+		});
 
+		const sequelized = bookings.map((b) => {
+			const { user, ...rest } = b;
 
-		
+			return {
+				User: user,
+				...rest,
+			};
+		});
+
+		return res.json({ Bookings: sequelized });
+	} else {
+		const bookings = await prisma.booking.findMany({
+			where: { spotId: spot.id, userId: user.id },
+			select: { startDate: true, endDate: true, spotId: true },
+		});
+
+		return res.json({ Bookings: bookings });
 	}
-
-
-	let bookings = await prisma.booking.findMany({
-		where: { userId: user.id },
-		include: {
-			spot: {
-				select: {
-					images: { where: { preview: true }, select: { url: true } },
-					id: true,
-					ownerId: true,
-					address: true,
-					city: true,
-					state: true,
-					country: true,
-					lat: true,
-					lng: true,
-					name: true,
-					price: true,
-				},
-			},
-		},
-	});
-
-	const sequelized = bookings.map((b) => {
-		const { spot, startDate, endDate, ...rest } = b;
-
-		const { images, ...spotRest } = spot;
-
-		return {
-			Spot: {
-				previewImage: images[0]?.url ?? "",
-				...spotRest,
-			},
-			startDate: startDate.toDateString(),
-			endDate: endDate.toDateString(),
-			...rest,
-		};
-	});
-
-	return res.json({ Bookings: sequelized });
-});*/
+});
 
 router.get("/:spotId/reviews", async (req, res) => {
 	const spot = await getSpot(req.params.spotId, res, (id) =>
@@ -491,8 +484,8 @@ router.post("/:spotId/bookings", requireAuth, async (req, res, next) => {
 
 	return res.status(201).json({
 		...booking,
-		startDate: booking.startDate.toISOString().split("T")[0],
-		endDate: booking.endDate.toISOString().split("T")[0],
+		startDate: formatDate(booking.startDate),
+		endDate: formatDate(booking.endDate),
 	});
 });
 
