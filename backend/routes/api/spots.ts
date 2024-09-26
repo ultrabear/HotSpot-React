@@ -223,7 +223,7 @@ router.delete("/:spotId", requireAuth, async (req, res) => {
 
 	await prisma.spot.delete({ where: { id: spot.id } });
 
-	return res.status(200).json({ message: "Sucessfully deleted" });
+	return res.status(200).json({ message: "Successfully deleted" });
 });
 
 /*router.get("/:spotId/bookings", requireAuth, async (req, res) => {
