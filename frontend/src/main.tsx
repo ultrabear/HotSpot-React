@@ -5,7 +5,7 @@ import "./index.css";
 import { store } from "./store/store.ts";
 import { Provider } from "react-redux";
 import { csrfFetch, restoreCSRF } from "./store/csrf.ts";
-import * as sessionActions from './store/session.ts';
+import * as sessionActions from "./store/session.ts";
 
 if (import.meta.env.MODE !== "production") {
 	restoreCSRF();

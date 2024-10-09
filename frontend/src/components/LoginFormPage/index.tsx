@@ -2,7 +2,7 @@ import { useState } from "react";
 import * as sessionActions from "../../store/session.ts";
 import { Navigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../store/store.ts";
-import './index.css';
+import "./index.css";
 
 function LoginFormPage() {
 	const dispatch = useAppDispatch();
