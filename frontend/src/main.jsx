@@ -1,40 +1,30 @@
-import { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
-import LoginFormPage from "./components/LoginFormPage";
-import * as sessionActions from "./store/session";
+import React from "react";
+import App from "./App";
+import "./index.css";
+import { Provider } from "react-redux";
+import configureStore from "./store";
+import { createRoot } from "react-dom/client";
 
-function Layout() {
-	const dispatch = useDispatch();
-	const [isLoaded, setIsLoaded] = useState(false);
+import { restoreCSRF, csrfFetch } from "./store/csrf";
 
-	useEffect(() => {
-		dispatch(sessionActions.restoreUser()).then(() => {
-			setIsLoaded(true);
-		});
-	}, [dispatch]);
+import * as sessionActions from "./store/session"; // <-- ADD THIS LINE
 
-	return <>{isLoaded && <Outlet />}</>;
+const store = configureStore();
+
+if (import.meta.env.MODE !== "production") {
+	restoreCSRF();
+
+	window.csrfFetch = csrfFetch;
+	window.store = store;
+	window.sessionActions = sessionActions;
 }
 
-const router = createBrowserRouter([
-	{
-		element: <Layout />,
-		children: [
-			{
-				path: "/",
-				element: <h1>Welcome!</h1>,
-			},
-			{
-				path: "/login",
-				element: <LoginFormPage />,
-			},
-		],
-	},
-]);
+const root = createRoot(document.getElementById("root")).render(
+	<React.StrictMode>
+		<Provider store={store}>
+			<App />
+		</Provider>
+	</React.StrictMode>,
+);
 
-function App() {
-	return <RouterProvider router={router} />;
-}
-
-export default App;
+export default root;
