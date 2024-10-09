@@ -20,8 +20,4 @@ router.use("/reviews", reviewRouter);
 router.use("/bookings", bookingRouter);
 router.use(imagesRouter);
 
-router.post("/test", (req, res) => {
-	res.json({ requestBody: req.body });
-});
-
 export default router;
