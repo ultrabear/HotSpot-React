@@ -4,7 +4,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import LoginFormPage from "./components/LoginFormPage";
 import { PropsWithChildren, useEffect, useState } from "react";
 import { restoreUser } from "./store/session";
-import { useAppStore } from "./store/store";
+import { useAppDispatch } from "./store/store";
 
 const router = createBrowserRouter([
 	{
@@ -19,14 +19,14 @@ const router = createBrowserRouter([
 
 function Layout<U>({ children }: PropsWithChildren<U>): JSX.Element {
 	const [loaded, setLoaded] = useState(false);
-	const store = useAppStore();
+	const dispatch = useAppDispatch();
 
 	useEffect(() => {
 		if (!loaded) {
 			setLoaded(true);
-			store.dispatch(restoreUser());
+			dispatch(restoreUser());
 		}
-	}, [store, loaded]);
+	}, [dispatch, loaded]);
 
 	if (!loaded) {
 		return <h1>Logging in...</h1>;
