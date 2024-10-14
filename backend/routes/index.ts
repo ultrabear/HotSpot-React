@@ -4,6 +4,12 @@ import path from 'path';
 
 import api from "./api.js";
 
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+
 router.use("/api", api);
 
 if (process.env["NODE_ENV"] !== "production") {
