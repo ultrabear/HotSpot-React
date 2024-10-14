@@ -4,11 +4,6 @@ import path from 'path';
 
 import api from "./api.js";
 
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 
 router.use("/api", api);
 
@@ -26,18 +21,18 @@ if (process.env["NODE_ENV"] === "production") {
 	router.get("/", (req, res) => {
 		res.cookie("XSRF-TOKEN", req.csrfToken());
 		return res.sendFile(
-			path.resolve(__dirname, "../../frontend", "dist", "index.html"),
+			path.resolve("../frontend", "dist", "index.html"),
 		);
 	});
 
 	// Serve the static assets in the frontend's build folder
-	router.use(express.static(path.resolve(__dirname, "../../frontend/dist")));
+	router.use(express.static(path.resolve("../frontend/dist")));
 
 	// Serve the frontend's index.html file at all other routes NOT starting with /api
 	router.get(/^(?!\/?api).*/, (req, res) => {
 		res.cookie("XSRF-TOKEN", req.csrfToken());
 		return res.sendFile(
-			path.resolve(__dirname, "../../frontend", "dist", "index.html"),
+			path.resolve("../frontend", "dist", "index.html"),
 		);
 	});
 }
