@@ -6,9 +6,9 @@ set -x
 
 cd backend
   pnpm i
-  dotenv prisma generate
-  tsc
-  dotenv prisma db push --accept-data-loss
+  pnpm dotenv prisma generate
+  pnpm tsc
+  pnpm dotenv prisma db push --accept-data-loss
 cd ..
 
 cd frontend
