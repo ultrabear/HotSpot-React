@@ -4,6 +4,16 @@ import { useModal } from "../../context/Modal";
 import * as sessionActions from "../../store/session";
 import "./SignupForm.css";
 
+/**
+ * @typedef {Object} ErrorsTy
+ * @property {string} [email]
+ * @property {string} [username]
+ * @property {string} [firstName]
+ * @property {string} [lastName]
+ * @property {string} [password]
+ * @property {string} [confirmPassword]
+ */
+
 function SignupFormModal() {
 	const dispatch = useDispatch();
 	const [email, setEmail] = useState("");
@@ -12,7 +22,7 @@ function SignupFormModal() {
 	const [lastName, setLastName] = useState("");
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
-	const [errors, setErrors] = useState({});
+	const [errors, setErrors] = useState(/** @type {ErrorsTy} */ ({}));
 	const { closeModal } = useModal();
 
 	const handleSubmit = (e) => {

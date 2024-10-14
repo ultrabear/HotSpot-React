@@ -4,11 +4,15 @@ import { AiOutlineUser } from "react-icons/ai";
 import { useState } from "react";
 import { useEffect } from "react";
 import { useRef } from "react";
+import OpenModalButton from "../OpenModalButton/OpenModalButton";
+import LoginFormModal from "../LoginFormModal/LoginFormModal";
+import SignupFormModal from "../SignupFormModal/SignupFormModal";
 
 function ProfileButton({ user }) {
 	const dispatch = useDispatch();
 	const [showMenu, setShowMenu] = useState(false);
 
+	/** @type {React.MutableRefObject<HTMLUListElement>} */
 	const ulRef = useRef();
 
 	const logout = (e) => {
@@ -37,20 +41,43 @@ function ProfileButton({ user }) {
 		return () => document.removeEventListener("click", closeMenu);
 	}, [showMenu]);
 
+	const closeMenu = () => setShowMenu(false);
+
 	return (
 		<>
 			<button onClick={toggleMenu}>
 				<AiOutlineUser />
 			</button>
 			<ul className={ulClassName} ref={ulRef}>
-				<li>{user.username}</li>
-				<li>
-					{user.firstName} {user.lastName}
-				</li>
-				<li>{user.email}</li>
-				<li>
-					<button onClick={logout}>Log Out</button>
-				</li>
+				{user ? (
+					<>
+						<li>{user.username}</li>
+						<li>
+							{user.firstName} {user.lastName}
+						</li>
+						<li>{user.email}</li>
+						<li>
+							<button onClick={logout}>Log Out</button>
+						</li>
+					</>
+				) : (
+					<>
+						<li>
+							<OpenModalButton
+								buttonText="Log In"
+								modalComponent={<LoginFormModal />}
+								onButtonClick={closeMenu}
+							/>
+						</li>
+						<li>
+							<OpenModalButton
+								buttonText="Sign Up"
+								modalComponent={<SignupFormModal />}
+								onButtonClick={closeMenu}
+							/>
+						</li>
+					</>
+				)}
 			</ul>
 		</>
 	);
