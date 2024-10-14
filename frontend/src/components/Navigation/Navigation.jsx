@@ -16,33 +16,6 @@ function Navigation({ isLoaded }) {
 		dispatch(sessionActions.logout());
 	};
 
-	const sessionLinks = sessionUser ? (
-		<>
-			<li>
-				<ProfileButton user={sessionUser} />
-			</li>
-			<li>
-				<button onClick={logout}>Log Out</button>
-			</li>
-		</>
-	) : (
-		<>
-			<li>
-				<OpenModalButton
-					buttonText="Log In"
-					modalComponent={<LoginFormModal />}
-				/>
-			</li>
-
-			<li>
-				<OpenModalButton
-					buttonText="Sign Up"
-					modalComponent={<SignupFormModal />}
-				/>
-			</li>
-		</>
-	);
-
 	return (
 		<ul>
 			<li>
