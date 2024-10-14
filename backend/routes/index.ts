@@ -1,5 +1,6 @@
 import express from "express";
 const router = express.Router();
+import path from 'path';
 
 import api from "./api.js";
 
@@ -15,7 +16,6 @@ if (process.env["NODE_ENV"] !== "production") {
 	});
 }
 if (process.env["NODE_ENV"] === "production") {
-	const path = require("path");
 	// Serve the frontend's index.html file at the root route
 	router.get("/", (req, res) => {
 		res.cookie("XSRF-TOKEN", req.csrfToken());
@@ -25,7 +25,7 @@ if (process.env["NODE_ENV"] === "production") {
 	});
 
 	// Serve the static assets in the frontend's build folder
-	router.use(express.static(path.resolve("../frontend/dist")));
+	router.use(express.static(path.resolve(__dirname, "../../frontend/dist")));
 
 	// Serve the frontend's index.html file at all other routes NOT starting with /api
 	router.get(/^(?!\/?api).*/, (req, res) => {
