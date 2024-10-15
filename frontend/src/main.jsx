@@ -16,9 +16,9 @@ const store = configureStore();
 if (import.meta.env.MODE !== "production") {
 	restoreCSRF();
 
-	window['csrfFetch'] = csrfFetch;
-	window['store'] = store;
-	window['sessionActions'] = sessionActions;
+	window["csrfFetch"] = csrfFetch;
+	window["store"] = store;
+	window["sessionActions"] = sessionActions;
 }
 
 const root = createRoot(document.getElementById("root")).render(

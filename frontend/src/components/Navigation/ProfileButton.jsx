@@ -7,9 +7,10 @@ import { useRef } from "react";
 import OpenModalButton from "../OpenModalButton/OpenModalButton";
 import LoginFormModal from "../LoginFormModal/LoginFormModal";
 import SignupFormModal from "../SignupFormModal/SignupFormModal";
+import { useAppDispatch } from "../../store/store";
 
 function ProfileButton({ user }) {
-	const dispatch = useDispatch();
+	const dispatch = useAppDispatch();
 	const [showMenu, setShowMenu] = useState(false);
 
 	/** @type {React.MutableRefObject<HTMLUListElement>} */

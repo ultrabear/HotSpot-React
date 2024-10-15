@@ -5,12 +5,13 @@ import * as sessionActions from "../../store/session";
 import { useDispatch } from "react-redux";
 import { useModal } from "../../context/Modal";
 import "./LoginForm.css";
+import { useAppDispatch } from "../../store/store";
 
 function LoginFormModal() {
-	const dispatch = useDispatch();
+	const dispatch = useAppDispatch();
 	const [credential, setCredential] = useState("");
 	const [password, setPassword] = useState("");
-	const [errors, setErrors] = useState({});
+	const [errors, setErrors] = useState(/** @type {{message?: string}} */ ({}));
 	const { closeModal } = useModal();
 
 	const handleSubmit = (e) => {

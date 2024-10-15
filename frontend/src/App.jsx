@@ -3,9 +3,10 @@ import { useDispatch } from "react-redux";
 import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
 import Navigation from "./components/Navigation/Navigation";
 import * as sessionActions from "./store/session";
+import { useAppDispatch } from "./store/store";
 
 function Layout() {
-	const dispatch = useDispatch();
+	const dispatch = useAppDispatch();
 	const [isLoaded, setIsLoaded] = useState(false);
 
 	useEffect(() => {

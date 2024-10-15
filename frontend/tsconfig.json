@@ -1,13 +1,14 @@
 {
-  "compilerOptions": {
-    "checkJs": true,
-    "allowJs": true,
-    "noEmit": true,
-    "jsx": "react-jsx",
-    "module": "ES2022",
-    "target": "ES2022",
-    "moduleResolution": "Node10",
-    "allowSyntheticDefaultImports": true
-  },
-  "exclude": ["node_modules"]
+	"compilerOptions": {
+		"checkJs": true,
+		"allowJs": true,
+		"noEmit": true,
+		"jsx": "react-jsx",
+		"module": "ES2022",
+		"target": "ES2022",
+		"moduleResolution": "Node10",
+		"allowSyntheticDefaultImports": true,
+		"skipLibCheck": true,
+		"incremental": true
+	}
 }

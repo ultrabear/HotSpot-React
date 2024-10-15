@@ -1,18 +1,20 @@
 import { createStore, applyMiddleware, compose, combineReducers } from "redux";
 import thunk from "redux-thunk";
 import sessionReducer from "./session";
+import { useDispatch } from "react-redux";
 
 const rootReducer = combineReducers({
 	session: sessionReducer,
 });
 
 let enhancer;
+//@ts-ignore
 if (import.meta.env.MODE === "production") {
 	enhancer = applyMiddleware(thunk);
 } else {
 	const logger = (await import("redux-logger")).default;
 	const composeEnhancers =
-		window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+		window["__REDUX_DEVTOOLS_EXTENSION_COMPOSE__"] || compose;
 	enhancer = composeEnhancers(applyMiddleware(thunk, logger));
 }
 
@@ -21,3 +23,18 @@ const configureStore = (preloadedState) => {
 };
 
 export default configureStore;
+
+/**
+ * @typedef {import("react").Dispatch<AnyAction>} Dispatch
+ * @typedef {import("redux").AnyAction} AnyAction
+ */
+
+/**
+ * @typedef {{
+ * (inp:AnyAction): AnyAction;
+ * <T>(inp:(_: Dispatch) => Promise<T>): Promise<T>;
+ * }} DispatchTy
+ */
+
+/** @type {() => DispatchTy} */
+export const useAppDispatch = useDispatch;
