@@ -9,7 +9,7 @@ import { createPortal } from "react-dom";
 
 /**
  * @typedef {Object} ModalContextTy
- * @property {React.MutableRefObject<any>} modalRef
+ * @property {React.MutableRefObject<HTMLDivElement | null>} modalRef
  * @property {ModalContent} modalContent
  * @property {(_: ModalContent) => void} setModalContent
  * @property {() => void} closeModal
@@ -19,11 +19,14 @@ import { createPortal } from "react-dom";
 const ModalContext = createContext(/** @type {ModalContextTy} */ ({}));
 
 export function ModalProvider({ children }) {
-	const modalRef = useRef();
+	/** @type {React.MutableRefObject<HTMLDivElement | null>} */
+	const modalRef = useRef(null);
 
 	const [modalContent, setModalContent] = useState(null);
 
-	const [onModalClose, setOnModalClose] = useState(null);
+	const [onModalClose, setOnModalClose] = useState(
+		/** @type {(() => () => void) | null} */ (null),
+	);
 
 	const closeModal = () => {
 		setModalContent(null);

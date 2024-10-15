@@ -21,7 +21,14 @@ if (import.meta.env.MODE !== "production") {
 	window["sessionActions"] = sessionActions;
 }
 
-const root = createRoot(document.getElementById("root")).render(
+/**
+ * @template {any} T
+ * @param {T | null} a
+ * @returns {T}
+ * */
+const assume = (a) => /** @type {T} */ (a);
+
+const root = createRoot(assume(document.getElementById("root"))).render(
 	<React.StrictMode>
 		<ModalProvider>
 			<Provider store={store}>

@@ -70,8 +70,27 @@ export const logout = () => async (dispatch) => {
 	return response;
 };
 
+/** @type {UserState} */
 const initialState = { user: null };
 
+/**
+ * @typedef {Object} User
+ * @prop {string} username
+ * @prop {string} email
+ * @prop {string} firstName
+ * @prop {string} lastName
+ * @prop {number} id
+ */
+
+/**
+ * @typedef {Object} UserState
+ * @prop {User | null} user
+ */
+
+/**
+ * @template {import("./store").AnyAction} A
+ * @type {import("react").Reducer<UserState, A>}
+ */
 const sessionReducer = (state = initialState, action) => {
 	switch (action.type) {
 		case SET_USER:

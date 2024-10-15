@@ -2,9 +2,10 @@ import { Link, NavLink } from "react-router-dom";
 import { useSelector } from "react-redux";
 import ProfileButton from "./ProfileButton";
 import "./Navigation.css";
+import { useAppSelector } from "../../store/store";
 
 function Navigation({ isLoaded }) {
-	const sessionUser = useSelector((state) => state.session.user);
+	const sessionUser = useAppSelector((state) => state.session.user);
 
 	return (
 		<>
@@ -15,14 +16,11 @@ function Navigation({ isLoaded }) {
 						HotSpot
 					</Link>
 				</li>
-				<li className="login">
-					<li>
-						<NavLink to="/">Home</NavLink>
-					</li>
+				<li>
 					{isLoaded && (
-						<li>
+						<div className="login">
 							<ProfileButton user={sessionUser} />
-						</li>
+						</div>
 					)}
 				</li>
 			</ul>

@@ -1,3 +1,9 @@
+.profile-dropdown {
+  display: flex;
+  flex-direction: column;
+}
+
+
 .hidden {
   display: none;
 }
@@ -15,8 +21,10 @@ ul {
   .login {
     display: flex;
     gap: 1em;
+    justify-self: right;
 
   }
+
 
   .img {
     display: flex;

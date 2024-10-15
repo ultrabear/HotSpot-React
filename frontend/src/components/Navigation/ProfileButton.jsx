@@ -1,4 +1,3 @@
-import { useDispatch } from "react-redux";
 import * as sessionActions from "../../store/session";
 import { AiOutlineUser } from "react-icons/ai";
 import { useState } from "react";
@@ -8,16 +7,23 @@ import OpenModalButton from "../OpenModalButton/OpenModalButton";
 import LoginFormModal from "../LoginFormModal/LoginFormModal";
 import SignupFormModal from "../SignupFormModal/SignupFormModal";
 import { useAppDispatch } from "../../store/store";
+import { Navigate } from "react-router-dom";
 
+/**
+ * @param {Object} param0
+ * @param {import("../../store/session").User | null} param0.user
+ * */
 function ProfileButton({ user }) {
 	const dispatch = useAppDispatch();
 	const [showMenu, setShowMenu] = useState(false);
+	const [goHome, setGoHome] = useState(false);
 
-	/** @type {React.MutableRefObject<HTMLUListElement>} */
-	const ulRef = useRef();
+	/** @type {React.MutableRefObject<HTMLUListElement | null>} */
+	const ulRef = useRef(null);
 
 	const logout = (e) => {
 		e.preventDefault();
+		setGoHome(true);
 		dispatch(sessionActions.logout());
 	};
 
@@ -43,6 +49,11 @@ function ProfileButton({ user }) {
 	}, [showMenu]);
 
 	const closeMenu = () => setShowMenu(false);
+
+	if (goHome) {
+		setGoHome(false);
+		return <Navigate to="/" />;
+	}
 
 	return (
 		<>
