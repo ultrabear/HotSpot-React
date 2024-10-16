@@ -16,5 +16,6 @@
 		"strictNullChecks": true,
 		"strict": true,
 		"strictFunctionTypes": false
-	}
+	},
+  "exclude": ["dist/"]
 }
