@@ -138,10 +138,13 @@ router.get("/:spotId", async (req, res) => {
 		return;
 	}
 
-	const { reviews, images, owner, ...rest } = spot;
+	const { reviews, images, owner, lat, lng, price, ...rest } = spot;
 
 	const ret = ({
 		...rest,
+		lat: Number(lat),
+		lng: Number(lng),
+		price: Number(price),
 		numReviews: reviews.length,
 		avgStarRating: reviews.reduce((a, i) => a + i.stars, 0) / reviews.length,
 		SpotImages: images,
@@ -358,7 +361,7 @@ router.post(
 const validateNewSpotImage = [
 	check("url").exists({ checkFalsy: true }).withMessage("URL is required"),
 	check("preview")
-		.exists({ checkFalsy: true })
+		.exists()
 		.isBoolean()
 		.withMessage("Preview flag is required"),
 
