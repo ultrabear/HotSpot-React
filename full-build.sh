@@ -1,14 +1,12 @@
 #!/bin/bash
-
 set -euo pipefail
-
 set -x
 
 cd backend
   pnpm i
-  pnpm dotenv prisma generate
+  pnpm prisma generate
   pnpm tsc
-  pnpm dotenv prisma db push --accept-data-loss
+  pnpm prisma db push --accept-data-loss
 cd ..
 
 cd frontend

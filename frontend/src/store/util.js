@@ -4,7 +4,7 @@
  * @returns {Omit<T, "createdAt" | "updatedAt"> & HotSpot.TimeStamps}
  */
 
-const upgradeTimeStamps = (obj) => {
+export const upgradeTimeStamps = (obj) => {
 	return {
 		...obj,
 		createdAt: new Date(obj.createdAt),

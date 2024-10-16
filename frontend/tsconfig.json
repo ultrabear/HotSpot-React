@@ -3,13 +3,17 @@
 		"checkJs": true,
 		"allowJs": true,
 		"noEmit": true,
-		"jsx": "react-jsx",
-		"module": "ES2022",
+		"incremental": true,
+		
+    "module": "ES2022",
 		"target": "ES2022",
-		"moduleResolution": "Node10",
+
+		"jsx": "react-jsx",
+    "moduleResolution": "Node10",
 		"allowSyntheticDefaultImports": true,
-		"skipLibCheck": true,
-		"strictNullChecks": true,
-		"incremental": true
+    "skipLibCheck": true,
+		
+    "strictNullChecks": true,
+    "strict": true
 	}
 }

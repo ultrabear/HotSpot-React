@@ -1,4 +1,5 @@
 import { csrfFetch } from "./csrf";
+import { upgradeTimeStamps } from "./util";
 
 /**
  * @param {HotSpot.API.BulkSpot} spot
@@ -15,8 +16,10 @@ function toNormalized(spot) {
 	});
 
 	try {
-		data.previewImage = new URL(spot.previewImage);
-	} catch (_) {}
+		data.previewImage = new URL(previewImage);
+	} catch (_) {
+		// do nothing
+	}
 
 	return data;
 }
@@ -41,6 +44,7 @@ const setSpotsFromAPI = (apiResults) => {
 /**
  * @param {number} page
  * @param {number} size
+ * @returns {import("./store").ThunkDispatchFn<Response>}
  */
 export const getSpots =
 	(page = 1, size = 10) =>
@@ -55,6 +59,9 @@ export const getSpots =
 
 const HYDRATE_SINGLE_SPOT = "spots/HYDRATE_SINGLE";
 
+/**
+ * @param {HotSpot.API.SingleSpot} apiResults
+ */
 const singleSpotInsert = (apiResults) => {
 	return {
 		type: HYDRATE_SINGLE_SPOT,

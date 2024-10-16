@@ -9,7 +9,7 @@ declare namespace HotSpot {
 		updatedAt: string;
 	}
 
-	declare namespace Store {
+	namespace Store {
 		interface User {
 			username: string;
 			email: string;
@@ -76,7 +76,7 @@ declare namespace HotSpot {
 		}
 	}
 
-	declare namespace API {
+	namespace API {
 		interface MinSpot extends WeakTimeStamps {
 			id: number;
 			lat: number;

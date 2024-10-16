@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 const rootReducer = combineReducers({
 	session: sessionReducer,
-	spots: spotsReducer
+	spots: spotsReducer,
 });
 
 let enhancer;
@@ -14,8 +14,10 @@ let enhancer;
 if (import.meta.env.MODE === "production") {
 	enhancer = applyMiddleware(thunk);
 } else {
+	//@ts-ignore
 	const logger = (await import("redux-logger")).default;
 	const composeEnhancers =
+		//@ts-ignore
 		window["__REDUX_DEVTOOLS_EXTENSION_COMPOSE__"] || compose;
 	enhancer = composeEnhancers(applyMiddleware(thunk, logger));
 }
@@ -30,8 +32,13 @@ const configureStore = (preloadedState) => {
 export default configureStore;
 
 /**
- * @typedef {import("react").Dispatch<AnyAction>} Dispatch
  * @typedef {import("redux").AnyAction} AnyAction
+ * @typedef {import("react").Dispatch<AnyAction>} Dispatch
+ */
+
+/**
+ * @template {object} T
+ * @typedef {((dispatch: Dispatch) => Promise<T>)} ThunkDispatchFn
  */
 
 /**

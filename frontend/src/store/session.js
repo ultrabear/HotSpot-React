@@ -3,6 +3,7 @@ import { csrfFetch } from "./csrf";
 const SET_USER = "session/setUser";
 const REMOVE_USER = "session/removeUser";
 
+/** @param {HotSpot.Store.User | null} user */
 const setUser = (user) => {
 	return {
 		type: SET_USER,
@@ -16,6 +17,12 @@ const removeUser = () => {
 	};
 };
 
+/**
+ * @param {Object} user
+ * @param {string} user.credential
+ * @param {string} user.password
+ * @returns {import("./store").ThunkDispatchFn<Response>}
+ */
 export const login = (user) => async (dispatch) => {
 	const { credential, password } = user;
 	const response = await csrfFetch("/api/session", {
@@ -30,6 +37,9 @@ export const login = (user) => async (dispatch) => {
 	return response;
 };
 
+/**
+ * @returns {import("./store").ThunkDispatchFn<Response>}
+ */
 export const restoreUser = () => async (dispatch) => {
 	const response = await csrfFetch("/api/session");
 	const data = await response.json();
@@ -44,6 +54,7 @@ export const restoreUser = () => async (dispatch) => {
  * @param {string} user.lastName
  * @param {string} user.email
  * @param {string} user.password
+ * @returns {import("./store").ThunkDispatchFn<Response>}
  */
 export const signup = (user) => async (dispatch) => {
 	const { username, firstName, lastName, email, password } = user;
@@ -61,7 +72,9 @@ export const signup = (user) => async (dispatch) => {
 	dispatch(setUser(data.user));
 	return response;
 };
-
+/**
+ * @returns {import("./store").ThunkDispatchFn<Response>}
+ */
 export const logout = () => async (dispatch) => {
 	const response = await csrfFetch("/api/session", {
 		method: "DELETE",
