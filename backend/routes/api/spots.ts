@@ -25,6 +25,7 @@ function transformSpot(
 ): object {
 	const { images, reviews, lat, lng, price, ...spot } = wholeSpot;
 
+
 	return {
 		...spot,
 		// sequelize is wrong and they codified that in the API
@@ -139,13 +140,15 @@ router.get("/:spotId", async (req, res) => {
 
 	const { reviews, images, owner, ...rest } = spot;
 
-	return res.json({
+	const ret = ({
 		...rest,
 		numReviews: reviews.length,
 		avgStarRating: reviews.reduce((a, i) => a + i.stars, 0) / reviews.length,
 		SpotImages: images,
 		Owner: owner,
 	});
+
+	return res.json(ret);
 });
 
 router.put(

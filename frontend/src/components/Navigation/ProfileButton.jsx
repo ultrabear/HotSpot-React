@@ -11,7 +11,7 @@ import { Navigate } from "react-router-dom";
 
 /**
  * @param {Object} param0
- * @param {import("../../store/session").User | null} param0.user
+ * @param {HotSpot.Store.User | null} param0.user
  * */
 function ProfileButton({ user }) {
 	const dispatch = useAppDispatch();

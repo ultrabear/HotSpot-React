@@ -9,7 +9,7 @@ function Navigation({ isLoaded }) {
 
 	return (
 		<>
-			<ul>
+			<ul className="nav-main">
 				<li>
 					<Link to="/" className="img">
 						<img src="/icon.webp" />
