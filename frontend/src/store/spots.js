@@ -49,9 +49,7 @@ const setSpotsFromAPI = (apiResults) => {
 export const getSpots =
 	(page = 1, size = 10) =>
 	async (dispatch) => {
-		const response = await csrfFetch(`/api/spots?page=${page}&size=${size}`, {
-			method: "GET",
-		});
+		const response = await csrfFetch(`/api/spots?page=${page}&size=${size}`);
 		const data = /** @type {HotSpot.API.AllSpots} */ (await response.json());
 		dispatch(setSpotsFromAPI(data));
 		return response;
@@ -67,6 +65,17 @@ const singleSpotInsert = (apiResults) => {
 		type: HYDRATE_SINGLE_SPOT,
 		payload: apiResults,
 	};
+};
+
+/**
+ * @param {number} id
+ * @returns {import("./store").ThunkDispatchFn<Response>}
+ */
+export const getSpot = (id) => async (dispatch) => {
+	const response = await csrfFetch(`/api/spots/${id}`);
+	const data = /** @type {HotSpot.API.SingleSpot} */ (await response.json());
+	dispatch(singleSpotInsert(data));
+	return response;
 };
 
 /** @type {HotSpot.Store.SpotState} */
@@ -99,9 +108,9 @@ const spotsReducer = (state = initialState, action) => {
 
 			return newState;
 		}
+		default:
+			return state;
 	}
-
-	return state;
 };
 
 export default spotsReducer;

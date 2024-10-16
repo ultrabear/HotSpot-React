@@ -21,6 +21,9 @@ function ProfileButton({ user }) {
 	/** @type {React.MutableRefObject<HTMLUListElement | null>} */
 	const ulRef = useRef(null);
 
+	/**
+	 * @param {React.MouseEvent<HTMLButtonElement, MouseEvent>} e
+	 */
 	const logout = (e) => {
 		e.preventDefault();
 		setGoHome(true);
@@ -29,6 +32,9 @@ function ProfileButton({ user }) {
 
 	const ulClassName = "profile-dropdown" + (showMenu ? "" : " hidden");
 
+	/**
+	 * @param {React.MouseEvent<HTMLButtonElement, MouseEvent>} e
+	 */
 	const toggleMenu = (e) => {
 		e.stopPropagation(); // Keep click from bubbling up to document and triggering closeMenu
 		setShowMenu(!showMenu);
@@ -37,7 +43,11 @@ function ProfileButton({ user }) {
 	useEffect(() => {
 		if (!showMenu) return;
 
+		/**
+		 * @param {MouseEvent} e
+		 */
 		const closeMenu = (e) => {
+			//@ts-ignore
 			if (ulRef.current && !ulRef.current.contains(e.target)) {
 				setShowMenu(false);
 			}

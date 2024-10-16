@@ -1,6 +1,6 @@
 .nav-main {
   
-  ul .login {
+  & ul .login {
     z-index: 1;
     position: relative;
 
@@ -20,7 +20,7 @@
 
     right: 0;
 
-    li {
+    & li {
       padding: auto;
       margin: auto;
     }

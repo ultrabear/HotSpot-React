@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useState } from "react";
 import { useModal } from "../../context/Modal";
 import * as sessionActions from "../../store/session";
 import "./SignupForm.css";
@@ -26,6 +25,9 @@ function SignupFormModal() {
 	const [errors, setErrors] = useState(/** @type {ErrorsTy} */ ({}));
 	const { closeModal } = useModal();
 
+	/**
+	 * @param {React.FormEvent<HTMLFormElement>} e
+	 */
 	const handleSubmit = (e) => {
 		e.preventDefault();
 		if (password === confirmPassword) {

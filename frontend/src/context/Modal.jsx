@@ -18,6 +18,9 @@ import { createPortal } from "react-dom";
 
 const ModalContext = createContext(/** @type {ModalContextTy} */ ({}));
 
+/**
+ * @param {import("react").PropsWithChildren<{}>} param0
+ */
 export function ModalProvider({ children }) {
 	/** @type {React.MutableRefObject<HTMLDivElement | null>} */
 	const modalRef = useRef(null);

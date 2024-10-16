@@ -16,8 +16,11 @@ const store = configureStore();
 if (import.meta.env.MODE !== "production") {
 	restoreCSRF();
 
+	//@ts-ignore
 	window["csrfFetch"] = csrfFetch;
+	//@ts-ignore
 	window["store"] = store;
+	//@ts-ignore
 	window["sessionActions"] = sessionActions;
 }
 

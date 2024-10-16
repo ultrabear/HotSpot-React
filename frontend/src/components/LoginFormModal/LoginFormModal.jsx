@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import * as sessionActions from "../../store/session";
-import { useDispatch } from "react-redux";
 import { useModal } from "../../context/Modal";
 import "./LoginForm.css";
 import { useAppDispatch } from "../../store/store";
@@ -13,9 +12,11 @@ function LoginFormModal() {
 	const [vErrs, setVErrs] = useState(
 		/** @type {{pass?: string, user?: string}} */ ({}),
 	);
-	const [submitable, setSubmitable] = useState(false);
 	const { closeModal } = useModal();
 
+	/**
+	 * @param {React.FormEvent<HTMLFormElement>} e
+	 */
 	const handleSubmit = (e) => {
 		e.preventDefault();
 		setErrors({});

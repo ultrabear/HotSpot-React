@@ -1,8 +1,9 @@
 // frontend/src/store/csrf.js
 
+//@ts-ignore
 import Cookies from "js-cookie";
 
-/** 
+/**
  * @type {typeof fetch}
  * */
 export async function csrfFetch(url, options = {}) {

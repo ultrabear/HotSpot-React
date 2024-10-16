@@ -1,9 +1,12 @@
-import { Link, NavLink } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import ProfileButton from "./ProfileButton";
 import "./Navigation.css";
 import { useAppSelector } from "../../store/store";
 
+/**
+ * @param {Object} param0
+ * @param {boolean} param0.isLoaded
+ */
 function Navigation({ isLoaded }) {
 	const sessionUser = useAppSelector((state) => state.session.user);
 
