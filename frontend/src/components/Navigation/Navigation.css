@@ -1,5 +1,10 @@
 .nav-main {
-  
+ 
+  &>li {
+    display: flex;
+    gap: 10px;
+  }
+
   & ul .login {
     z-index: 1;
     position: relative;

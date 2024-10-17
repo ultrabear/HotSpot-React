@@ -4,6 +4,8 @@ import Navigation from "./components/Navigation/Navigation";
 import * as sessionActions from "./store/session";
 import { useAppDispatch } from "./store/store";
 import SpotsList from "./components/SpotsList/SpotsList";
+import SpotDetails from "./components/SpotDetails/SpotDetails";
+import NewSpotModal from "./components/NewSpotModal/NewSpotModal";
 
 function Layout() {
 	const dispatch = useAppDispatch();
@@ -36,6 +38,20 @@ const router = createBrowserRouter([
 					</>
 				),
 			},
+			{
+				path: "spots",
+				element: <Outlet />,
+				children: [
+					{
+						path: ":spotId",
+						element: <SpotDetails />,
+					},
+				],
+			},
+			{
+				path: "newspot",
+				element: <NewSpotModal />,
+			}
 		],
 	},
 ]);

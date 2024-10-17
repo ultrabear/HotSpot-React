@@ -48,16 +48,21 @@ declare namespace HotSpot {
 			name: string;
 			description: string;
 			price: number;
+
+			// below fields are all conditional on partial data processing
+			partial: boolean;
+
 			images: { [key: number]: SpotImage };
 			previewImage?: URL;
 			avgRating?: number;
-			partial: boolean;
+			numReviews?: number;
+			owner?: { id: number; firstName: string; lastName: string };
 		}
 
 		interface Review extends TimeStamps {
 			id: ReviewId;
 			spotId: number;
-			userId: number;
+			user: { id: number; firstName: string; lastName: string };
 			review: string;
 			stars: number;
 			images: ReviewImage[];
@@ -92,7 +97,7 @@ declare namespace HotSpot {
 		}
 
 		interface SingleSpot extends MinSpot {
-			avgStarRating: number;
+			avgStarRating: number | null;
 
 			Owner: { id: number; firstName: string; lastName: string };
 			numReviews: number;
@@ -100,14 +105,36 @@ declare namespace HotSpot {
 		}
 
 		interface BulkSpot extends MinSpot {
+			avgRating: number | null;
+
 			previewImage: string;
-			avgRating: number;
 		}
 
 		interface AllSpots {
 			Spots: BulkSpot[];
 			page: number;
 			size: number;
+		}
+
+		interface SpotReview extends WeakTimeStamps {
+			id: number;
+			review: string;
+			spotId: number;
+			userId: number;
+			stars: number;
+			User: {
+				id: number;
+				firstName: string;
+				lastName: string;
+			};
+			ReviewImages: {
+				id: number;
+				url: string;
+			}[];
+		}
+
+		interface SpotReviews {
+			Reviews: SpotReview[];
 		}
 	}
 }

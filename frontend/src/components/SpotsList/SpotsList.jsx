@@ -3,6 +3,7 @@ import { useAppDispatch, useAppSelector } from "../../store/store";
 import { getSpots } from "../../store/spots";
 import "./SpotsList.css";
 import { Link } from "react-router-dom";
+import { formatRating } from "../../util";
 
 /**
  * @param {Object} prop
@@ -23,7 +24,7 @@ function SpotTile({ spot }) {
 					<span>
 						{spot.city}, {spot.state}
 					</span>
-					<span>{spot.avgRating ? `Rating: ${spot.avgRating}/5` : "New"}</span>
+					<span>{formatRating(spot)}</span>
 				</div>
 				<div>{`$${spot.price} night`}</div>
 			</li>

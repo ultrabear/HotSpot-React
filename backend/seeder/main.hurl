@@ -9,3 +9,6 @@ HTTP 200
 
 GET {{hurlin-await}}{{await1}}
 HTTP 200
+
+GET {{hurlin-import}}./spot/many.hurl
+HTTP 200

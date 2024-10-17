@@ -2,6 +2,8 @@ import { Link } from "react-router-dom";
 import ProfileButton from "./ProfileButton";
 import "./Navigation.css";
 import { useAppSelector } from "../../store/store";
+import OpenModalButton from "../OpenModalButton/OpenModalButton";
+import NewSpotModal from "../NewSpotModal/NewSpotModal";
 
 /**
  * @param {Object} param0
@@ -21,9 +23,18 @@ function Navigation({ isLoaded }) {
 				</li>
 				<li>
 					{isLoaded && (
-						<div className="login">
-							<ProfileButton user={sessionUser} />
-						</div>
+						<>
+							<div className="createSpot">
+								{sessionUser !== null && (
+									<Link to="/newspot">
+										<button>Create a Spot</button>
+									</Link>
+								)}
+							</div>
+							<div className="login">
+								<ProfileButton user={sessionUser} />
+							</div>
+						</>
 					)}
 				</li>
 			</ul>

@@ -4,9 +4,6 @@ HTTP 200
 token: jsonpath "$['XSRF-TOKEN']"
 csrf: jsonpath "$['_csrf']"
 
-GET {{hurlin-import}}./spot/images.hurl
-HTTP 200
-
 GET {{hurlin-import}}./spot/new.hurl
 HTTP 200
 [Captures]

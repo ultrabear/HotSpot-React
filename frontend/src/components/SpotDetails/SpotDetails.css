@@ -1,0 +1,55 @@
+.SpotDetails {
+
+  width: 80%;
+  margin: auto;
+
+  .images {
+    & img {
+      object-fit: cover;
+      width: 100%;
+      height: 540px;
+    }
+
+    .non-preview img {
+      height: 270px;
+    }
+
+    .non-preview {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+    }
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+
+
+  }
+
+
+  .details {
+    border: 1px solid green;
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+
+    .reservation {
+      .flex {
+        display: flex;
+        justify-content: space-evenly;
+      }
+
+
+      .reserve-button {
+        display: flex;
+        justify-content: center;
+        margin: 10px;
+        border: 1px solid red;
+      }
+
+      display: block;
+      border: 1px solid orange;
+    }
+  }
+
+
+}

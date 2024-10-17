@@ -7,7 +7,7 @@ import OpenModalButton from "../OpenModalButton/OpenModalButton";
 import LoginFormModal from "../LoginFormModal/LoginFormModal";
 import SignupFormModal from "../SignupFormModal/SignupFormModal";
 import { useAppDispatch } from "../../store/store";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 
 /**
  * @param {Object} param0
@@ -17,6 +17,7 @@ function ProfileButton({ user }) {
 	const dispatch = useAppDispatch();
 	const [showMenu, setShowMenu] = useState(false);
 	const [goHome, setGoHome] = useState(false);
+	let nav = useNavigate();
 
 	/** @type {React.MutableRefObject<HTMLUListElement | null>} */
 	const ulRef = useRef(null);
@@ -60,9 +61,11 @@ function ProfileButton({ user }) {
 
 	const closeMenu = () => setShowMenu(false);
 
+
 	if (goHome) {
 		setGoHome(false);
-		return <Navigate to="/" />;
+		setShowMenu(false);
+		nav("/");
 	}
 
 	return (
@@ -73,9 +76,8 @@ function ProfileButton({ user }) {
 			<ul className={ulClassName} ref={ulRef}>
 				{user ? (
 					<>
-						<li>{user.username}</li>
 						<li>
-							{user.firstName} {user.lastName}
+							Hello, {user.firstName}.
 						</li>
 						<li>{user.email}</li>
 						<li>

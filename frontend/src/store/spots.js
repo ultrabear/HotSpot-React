@@ -6,7 +6,7 @@ import { upgradeTimeStamps } from "./util";
  * @returns {HotSpot.Store.Spot}
  */
 function toNormalized(spot) {
-	const { previewImage, ...rest } = spot;
+	const { previewImage, avgRating, ...rest } = spot;
 
 	/** @type {HotSpot.Store.Spot} */
 	const data = upgradeTimeStamps({
@@ -15,10 +15,65 @@ function toNormalized(spot) {
 		images: {},
 	});
 
+	// single ne to catch undef
+	if (avgRating != null) {
+		data.avgRating = avgRating;
+	}
+
 	try {
 		data.previewImage = new URL(previewImage);
-	} catch (_) {
-		// do nothing
+	} catch (e) {
+		if (e instanceof TypeError) {
+			// pass
+		} else {
+			throw e;
+		}
+	}
+
+	return data;
+}
+
+/**
+ * @param {HotSpot.API.SingleSpot} spot
+ * @returns {HotSpot.Store.Spot}
+ */
+function normalizeSingle(spot) {
+	const { Owner, avgStarRating, SpotImages, ...rest } = spot;
+
+	/** @type {HotSpot.Store.Spot} */
+	const data = upgradeTimeStamps({
+		...rest,
+		partial: false,
+		owner: Owner,
+		images: {},
+	});
+
+	// single ne to catch undef
+	if (avgStarRating != null) {
+		data.avgRating = avgStarRating;
+	}
+
+	for (const img of SpotImages) {
+		try {
+			const normalized = {
+				id: img.id,
+				url: new URL(img.url),
+				preview: img.preview,
+				spotId: data.id,
+			};
+
+			if (normalized.preview) {
+				data.previewImage = normalized.url;
+			}
+
+			data.images[normalized.id] = normalized;
+		} catch (e) {
+			if (e instanceof TypeError) {
+				// pass
+			} else {
+				throw e;
+			}
+		}
 	}
 
 	return data;
@@ -97,14 +152,30 @@ const spotsReducer = (state = initialState, action) => {
 
 			for (const spot of spots) {
 				if (spot.id in newState) {
-					newState[spot.id] = {
+					const old = newState[spot.id];
+
+					/**  @type {HotSpot.Store.Spot}*/
+					const nSpot = {
+						...old,
 						...toNormalized(spot),
-						images: newState[spot.id].images,
+						images: old.images,
 					};
+
+					newState[spot.id] = nSpot;
 				} else {
 					newState[spot.id] = toNormalized(spot);
 				}
 			}
+
+			return newState;
+		}
+		case HYDRATE_SINGLE_SPOT: {
+			/** @type {HotSpot.API.SingleSpot} */
+			const spot = action.payload;
+
+			const newState = { ...state };
+
+			newState[spot.id] = normalizeSingle(spot);
 
 			return newState;
 		}

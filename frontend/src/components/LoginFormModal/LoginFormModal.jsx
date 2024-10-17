@@ -45,6 +45,18 @@ function LoginFormModal() {
 		setVErrs(err);
 	}, [credential, password]);
 
+	/** @param {React.MouseEvent<HTMLButtonElement, MouseEvent>} e */
+	function demoLogin(e) {
+		e.preventDefault();
+
+		return dispatch(
+			sessionActions.login({
+				credential: "Demo-lition",
+				password: "password1",
+			}),
+		).then(closeModal);
+	}
+
 	return (
 		<>
 			<h1>Log In</h1>
@@ -76,6 +88,7 @@ function LoginFormModal() {
 				{vErrs.user && <p className="error">{vErrs.user}</p>}
 				{vErrs.pass && <p className="error">{vErrs.pass}</p>}
 			</form>
+			<button onClick={demoLogin}>Login as Demo</button>
 		</>
 	);
 }
