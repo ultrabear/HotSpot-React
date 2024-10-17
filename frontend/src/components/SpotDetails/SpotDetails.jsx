@@ -7,6 +7,7 @@ import { formatRating } from "../../util";
 import { getReviews } from "../../store/review";
 import OpenModalButton from "../OpenModalButton/OpenModalButton";
 import NewReview from "../NewReview/NewReview";
+import { createSelector } from "reselect";
 
 /**
  * @typedef {"no" | "yes" | "checking"} CheckStatus
@@ -60,31 +61,27 @@ function SpotDetails() {
 
 	const user = useUser();
 
-	useEffect(() => {
-		if (checked === "no") {
-			setChecked("checking");
-			(async () => {
-				try {
-					await dispatch(getSpot(id));
-				} finally {
-					setChecked("yes");
-				}
-			})();
-		}
-	}, [checked, id, dispatch]);
+	if (checked === "no") {
+		setChecked("checking");
+		(async () => {
+			try {
+				await dispatch(getSpot(id));
+			} finally {
+				setChecked("yes");
+			}
+		})();
+	}
 
-	useEffect(() => {
-		if (checkReview === "no") {
-			setCheckReview("checking");
-			(async () => {
-				try {
-					await dispatch(getReviews(id));
-				} finally {
-					setCheckReview("yes");
-				}
-			})();
-		}
-	}, [checkReview, id, dispatch]);
+	if (checkReview === "no") {
+		setCheckReview("checking");
+		(async () => {
+			try {
+				await dispatch(getReviews(id));
+			} finally {
+				setCheckReview("yes");
+			}
+		})();
+	}
 
 	if (isNaN(id)) {
 		return <h1>No Such Spot with id &quot;{id}&quot; was found :(</h1>;
@@ -172,8 +169,16 @@ function SpotDetails() {
 				{canReview && (
 					<OpenModalButton
 						buttonText="Post Your Review"
-						modalComponent={<NewReview />}
-						onModalClose={() => setCheckReview("no")}
+						modalComponent={
+							<NewReview
+								spotId={spot.id}
+								onClose={() => {
+									console.log("wtf");
+									setCheckReview("no");
+									setChecked("no");
+								}}
+							/>
+						}
 					/>
 				)}
 				{reviews.map((i) => (

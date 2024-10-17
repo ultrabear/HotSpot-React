@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector, useUser } from "../../store/store";
-import { csrfFetch } from "../../store/csrf";
+import { csrfFetch, jsonPost } from "../../store/csrf";
 import { useNavigate } from "react-router-dom";
 
 /**
@@ -38,18 +38,6 @@ function TextInput({ frontName, backName, place, extra }) {
 	);
 }
 
-/**
- * @param {string} url
- * @param {Object} body
- * @returns {Promise<Response>}
- */
-async function jsonPost(url, body) {
-	return csrfFetch(url, {
-		method: "POST",
-		body: JSON.stringify(body),
-		headers: { "Content-Type": "application/json" },
-	});
-}
 
 /**
  * @param {Record<string, string | number>} details

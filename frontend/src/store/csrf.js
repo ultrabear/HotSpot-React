@@ -35,3 +35,16 @@ export async function csrfFetch(url, options = {}) {
 export function restoreCSRF() {
 	return csrfFetch("/api/csrf/restore");
 }
+
+/**
+ * @param {string} url
+ * @param {Object} body
+ * @returns {Promise<Response>}
+ */
+export async function jsonPost(url, body) {
+	return csrfFetch(url, {
+		method: "POST",
+		body: JSON.stringify(body),
+		headers: { "Content-Type": "application/json" },
+	});
+}
