@@ -3,8 +3,8 @@ import { useModal } from "../../context/Modal";
 import { jsonPost } from "../../store/csrf";
 
 /**
- * @param {Object} param0 
- * @param {number} param0.spotId 
+ * @param {Object} param0
+ * @param {number} param0.spotId
  * @param {() => void} param0.onClose
  */
 function NewReview({ spotId, onClose }) {
@@ -17,8 +17,9 @@ function NewReview({ spotId, onClose }) {
 	const onSubmit = (e) => {
 		e.preventDefault();
 
-		jsonPost(`/api/spots/${spotId}/reviews`, {review, stars}).then(() => { onClose(), closeModal() })
-
+		jsonPost(`/api/spots/${spotId}/reviews`, { review, stars }).then(() => {
+			onClose(), closeModal();
+		});
 	};
 
 	return (

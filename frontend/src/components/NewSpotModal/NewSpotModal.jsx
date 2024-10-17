@@ -38,7 +38,6 @@ function TextInput({ frontName, backName, place, extra }) {
 	);
 }
 
-
 /**
  * @param {Record<string, string | number>} details
  * @param {string[]} imgUrls
@@ -59,7 +58,7 @@ const createSpot = async (details, imgUrls) => {
 
 		return spot.id;
 	} catch (e) {
-		throw e
+		throw e;
 	}
 };
 
@@ -78,8 +77,10 @@ function NewSpotModal() {
 		previewImage: "",
 	});
 	const [imageSlots, setImageSlots] = useState(["", "", "", ""]);
-	const [escape, setEscape] = useState(/** @type {false | number} */(false));
-	const [errors, setErrors] = useState(/** @type {Record<string, string>} */ ({}));
+	const [escape, setEscape] = useState(/** @type {false | number} */ (false));
+	const [errors, setErrors] = useState(
+		/** @type {Record<string, string>} */ ({}),
+	);
 	const [vErrs, setVErrs] = useState(
 		/** @type {{
 		 country?: string,
@@ -165,11 +166,11 @@ function NewSpotModal() {
 		createSpot(
 			{ lat: Number(lat), lng: Number(lng), price: Number(price), ...rest },
 			[previewImage, ...imageSlots.filter((s) => s.length)],
-		).then(setEscape).catch(async e => {
-
+		)
+			.then(setEscape)
+			.catch(async (e) => {
 				setErrors((await e.json()).errors);
-				
-		});
+			});
 	};
 
 	const extra = { formInput, handleChange, vErrs };
@@ -178,11 +179,14 @@ function NewSpotModal() {
 		nav(`/spots/${escape}`);
 	}
 
-
 	return (
 		<>
 			<h1>Create a new Spot</h1>
-			<ul className="errors">{Object.entries(errors).map(([k, v]) => <h3 key={k}>{v}</h3>)}</ul>
+			<ul className="errors">
+				{Object.entries(errors).map(([k, v]) => (
+					<h3 key={k}>{v}</h3>
+				))}
+			</ul>
 			<form onSubmit={handleSubmit}>
 				<h2>Where's your place located?</h2>
 				<p>
