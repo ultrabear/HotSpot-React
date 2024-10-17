@@ -4,14 +4,8 @@ import { formatRating } from "../../util";
 import OpenModalButton from "../OpenModalButton/OpenModalButton";
 
 function DeleteSpot() {
-
-	return (<>Are you Sure about this??</>)
+	return <>Are you Sure about this??</>;
 }
-
-
-
-
-
 
 /**
  * @param {Object} prop
@@ -44,8 +38,13 @@ function SpotTile({ spotId, crud }) {
 
 			{addModOpts && (
 				<div>
-					<Link to={`/spots/${spotId}/edit`}><button>Update</button></Link>
-					<OpenModalButton buttonText="Delete" modalComponent={<DeleteSpot />}/>
+					<Link to={`/spots/${spotId}/edit`}>
+						<button>Update</button>
+					</Link>
+					<OpenModalButton
+						buttonText="Delete"
+						modalComponent={<DeleteSpot />}
+					/>
 				</div>
 			)}
 		</li>

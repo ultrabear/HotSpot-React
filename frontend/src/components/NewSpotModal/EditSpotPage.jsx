@@ -212,7 +212,7 @@ function EditSpotPage() {
 
 		editSpot(
 			{ lat: Number(lat), lng: Number(lng), price: Number(price), ...rest },
-			Number(spot?.id)
+			Number(spot?.id),
 		)
 			.then(setEscape)
 			.catch(async (e) => {
@@ -301,6 +301,5 @@ function EditSpotPage() {
 		</>
 	);
 }
-
 
 export default EditSpotPage;
