@@ -2,7 +2,7 @@ import { createStore, applyMiddleware, compose, combineReducers } from "redux";
 import thunk from "redux-thunk";
 import sessionReducer from "./session";
 import spotsReducer from "./spots";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector, useStore } from "react-redux";
 import reviewsReducer from "./review";
 
 const rootReducer = combineReducers({
@@ -23,6 +23,9 @@ if (import.meta.env.MODE === "production") {
 		window["__REDUX_DEVTOOLS_EXTENSION_COMPOSE__"] || compose;
 	enhancer = composeEnhancers(applyMiddleware(thunk, logger));
 }
+/**
+ * @typedef {ReturnType<typeof rootReducer>} RootState
+ */
 
 /**
  * @param {RootState} [preloadedState]
@@ -54,13 +57,8 @@ export default configureStore;
 export const useAppDispatch = useDispatch;
 
 /**
- * @typedef {ReturnType<typeof rootReducer>} RootState
- */
-
-/**
  * @type {<T>(_: (_: RootState) => T) => T}
  * */
 export const useAppSelector = useSelector;
-
 /** @returns {HotSpot.Store.UserState['user']} */
 export const useUser = () => useAppSelector((s) => s.session.user);

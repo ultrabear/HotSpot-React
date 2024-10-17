@@ -10,6 +10,7 @@ import { jsonPost } from "../../store/csrf";
 function NewReview({ spotId, onClose }) {
 	const [review, setReview] = useState("");
 	const [stars, setStars] = useState("");
+	const [errs, setErrs] = useState({});
 
 	const { closeModal } = useModal();
 
@@ -17,15 +18,22 @@ function NewReview({ spotId, onClose }) {
 	const onSubmit = (e) => {
 		e.preventDefault();
 
-		jsonPost(`/api/spots/${spotId}/reviews`, { review, stars }).then(() => {
-			onClose(), closeModal();
-		});
+		jsonPost(`/api/spots/${spotId}/reviews`, { review, stars })
+			.then(() => {
+				onClose(), closeModal();
+			})
+			.catch(async (e) => setErrs((await e.json()).errors));
 	};
 
 	return (
 		<>
 			<form className="NewReview" onSubmit={onSubmit}>
 				How was your stay?
+				<span className="Global errors">
+					{Object.values(errs).map((e) => (
+						<div key={e}>{e}</div>
+					))}
+				</span>
 				<textarea
 					placeholder="Leave your review here..."
 					value={review}

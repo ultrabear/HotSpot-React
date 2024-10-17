@@ -7,7 +7,7 @@ import OpenModalButton from "../OpenModalButton/OpenModalButton";
 import LoginFormModal from "../LoginFormModal/LoginFormModal";
 import SignupFormModal from "../SignupFormModal/SignupFormModal";
 import { useAppDispatch } from "../../store/store";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 
 /**
  * @param {Object} param0
@@ -77,6 +77,7 @@ function ProfileButton({ user }) {
 					<>
 						<li>Hello, {user.firstName}.</li>
 						<li>{user.email}</li>
+						<li><Link to="/spots/current">Manage Spots</Link></li>
 						<li>
 							<button onClick={logout}>Log Out</button>
 						</li>

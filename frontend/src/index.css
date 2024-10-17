@@ -2,4 +2,8 @@
   &.h-divider {
     border: solid 1px black;
   }
+
+  &.errors {
+    color: red;
+  }
 }

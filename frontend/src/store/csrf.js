@@ -39,11 +39,12 @@ export function restoreCSRF() {
 /**
  * @param {string} url
  * @param {Object} body
+ * @param {string} method
  * @returns {Promise<Response>}
  */
-export async function jsonPost(url, body) {
+export async function jsonPost(url, body, method = "POST") {
 	return csrfFetch(url, {
-		method: "POST",
+		method,
 		body: JSON.stringify(body),
 		headers: { "Content-Type": "application/json" },
 	});

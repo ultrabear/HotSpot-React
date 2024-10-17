@@ -1,3 +1,4 @@
+import { createSelector } from "reselect";
 import { csrfFetch } from "./csrf";
 import { upgradeTimeStamps } from "./util";
 
@@ -99,7 +100,7 @@ const setSpotsFromAPI = (apiResults) => {
 /**
  * @param {number} page
  * @param {number} size
- * @returns {import("./store").ThunkDispatchFn<Response>}
+ * @returns {import("./store").ThunkDispatchFn<HotSpot.API.AllSpots>}
  */
 export const getSpots =
 	(page = 1, size = 10) =>
@@ -107,7 +108,7 @@ export const getSpots =
 		const response = await csrfFetch(`/api/spots?page=${page}&size=${size}`);
 		const data = /** @type {HotSpot.API.AllSpots} */ (await response.json());
 		dispatch(setSpotsFromAPI(data));
-		return response;
+		return data;
 	};
 
 const HYDRATE_SINGLE_SPOT = "spots/HYDRATE_SINGLE";
@@ -124,13 +125,13 @@ const singleSpotInsert = (apiResults) => {
 
 /**
  * @param {number} id
- * @returns {import("./store").ThunkDispatchFn<Response>}
+ * @returns {import("./store").ThunkDispatchFn<HotSpot.API.SingleSpot>}
  */
 export const getSpot = (id) => async (dispatch) => {
 	const response = await csrfFetch(`/api/spots/${id}`);
 	const data = /** @type {HotSpot.API.SingleSpot} */ (await response.json());
 	dispatch(singleSpotInsert(data));
-	return response;
+	return data;
 };
 
 /** @type {HotSpot.Store.SpotState} */
@@ -183,5 +184,29 @@ const spotsReducer = (state = initialState, action) => {
 			return state;
 	}
 };
+
+export const spotsList = createSelector(
+	[/** @param {import("./store").RootState} store; */ (store) => store.spots],
+	(spots) => {
+		const spotsArr = Object.values(spots);
+		spotsArr.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+		return spotsArr;
+	},
+);
+
+export const currentSpots = createSelector(
+	[
+		/** @param {import("./store").RootState} store; @param {number | undefined} userId */ (
+			store,
+			userId,
+		) => ({ s: store.spots, u: userId }),
+	],
+	({ s: spots, u: userId }) => {
+		const spotsArr = Object.values(spots).filter((s) => s.ownerId === userId);
+
+		spotsArr.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+		return spotsArr;
+	},
+);
 
 export default spotsReducer;

@@ -1,58 +1,37 @@
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../store/store";
-import { getSpots } from "../../store/spots";
+import { getSpots, spotsList } from "../../store/spots";
 import "./SpotsList.css";
 import { Link } from "react-router-dom";
 import { formatRating } from "../../util";
+import { createSelector } from "reselect";
+import SpotTile from "./SpotTile";
 
 /**
- * @param {Object} prop
- * @param {HotSpot.Store.Spot} prop.spot
+ * @typedef {import("../../store/store").RootState} RootState
  */
-function SpotTile({ spot }) {
-	let imgUrl = "";
-
-	if (spot.previewImage) {
-		imgUrl = spot.previewImage.toString();
-	}
-
-	return (
-		<Link to={`/spots/${spot.id}`} title={spot.name}>
-			<li>
-				<img src={imgUrl} width="300px" height="300px" />
-				<div className="line-one">
-					<span>
-						{spot.city}, {spot.state}
-					</span>
-					<span>{formatRating(spot)}</span>
-				</div>
-				<div>{`$${spot.price} night`}</div>
-			</li>
-		</Link>
-	);
-}
 
 function SpotsList() {
 	const [hydrated, setHydrated] = useState(false);
-	const spots = useAppSelector((s) => s.spots);
 	const dispatch = useAppDispatch();
+	const spotsArr = useAppSelector((store) => spotsList(store));
 
 	if (!hydrated) {
-		dispatch(getSpots(1, 20));
 		setHydrated(true);
-	}
-
-	/** @type {HotSpot.Store.Spot[]} */
-	const spotsArr = [];
-
-	for (const k in spots) {
-		spotsArr.push(spots[k]);
+		(async () => {
+			for (let page = 1; true; page++) {
+				const res = await dispatch(getSpots(page, 20));
+				if (res.Spots.length !== 20) {
+					break;
+				}
+			}
+		})();
 	}
 
 	return (
 		<ul className="spots-list">
 			{spotsArr.map((s) => (
-				<SpotTile key={s.id} spot={s} />
+				<SpotTile key={s.id} spotId={s.id} />
 			))}
 		</ul>
 	);

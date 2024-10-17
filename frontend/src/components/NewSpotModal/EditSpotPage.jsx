@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector, useUser } from "../../store/store";
 import { csrfFetch, jsonPost } from "../../store/csrf";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { getSpot } from "../../store/spots";
 
 /**
  * @param {Object} param0
@@ -39,22 +40,28 @@ function TextInput({ frontName, backName, place, extra }) {
 }
 
 /**
+ * @typedef {"no" | "yes" | "checking"} CheckStatus
+ */
+
+/**
+ * @param {CheckStatus} checked
+ * @returns {boolean}
+ */
+function checking(checked) {
+	return checked === "no" || checked === "checking";
+}
+
+/**
  * @param {Record<string, string | number>} details
- * @param {string[]} imgUrls
+ * @param {number} id
  * @returns {Promise<number>}
  *
  */
-const createSpot = async (details, imgUrls) => {
+const editSpot = async (details, id) => {
 	try {
-		const res = await jsonPost("/api/spots", details);
+		const res = await jsonPost(`/api/spots/${id}`, details, "PUT");
 
 		const spot = await res.json();
-
-		const images = imgUrls.map((url, idx) =>
-			jsonPost(`/api/spots/${spot.id}/images`, { url, preview: idx === 0 }),
-		);
-
-		await Promise.all(images);
 
 		return spot.id;
 	} catch (e) {
@@ -62,8 +69,23 @@ const createSpot = async (details, imgUrls) => {
 	}
 };
 
-function NewSpotModal() {
+function EditSpotPage() {
+	const { spotId } = useParams();
 	const dispatch = useAppDispatch();
+
+	const id = Number(spotId);
+
+	const [checked, setChecked] = useState(/** @type {CheckStatus}*/ ("no"));
+	const [checkReview, setCheckReview] = useState(
+		/** @type {CheckStatus}*/ ("no"),
+	);
+
+	const spot = useAppSelector((s) => (id in s.spots ? s.spots[id] : null));
+
+	const reviews = useAppSelector((s) =>
+		[...(s.reviews.map[id] ?? [])].map((id) => s.reviews.all[id]),
+	);
+
 	const [formInput, setFormInput] = useState({
 		country: "",
 		address: "",
@@ -96,6 +118,31 @@ function NewSpotModal() {
 		}} */ ({}),
 	);
 	const nav = useNavigate();
+
+	if (checked === "no") {
+		setChecked("checking");
+		(async () => {
+			try {
+				const details = await dispatch(getSpot(id));
+
+				setFormInput({
+					country: details.country,
+					address: details.address,
+					city: details.city,
+					state: details.state,
+					lat: String(details.lat),
+					lng: String(details.lng),
+					description: details.description,
+					name: details.name,
+					price: String(details.price),
+					previewImage:
+						details.SpotImages.find((img) => img.preview)?.url ?? "",
+				});
+			} finally {
+				setChecked("yes");
+			}
+		})();
+	}
 
 	/**
 	 * @param {unknown} v
@@ -163,9 +210,9 @@ function NewSpotModal() {
 
 		const { lat, lng, price, previewImage, ...rest } = formInput;
 
-		createSpot(
+		editSpot(
 			{ lat: Number(lat), lng: Number(lng), price: Number(price), ...rest },
-			[previewImage, ...imageSlots.filter((s) => s.length)],
+			Number(spot?.id)
 		)
 			.then(setEscape)
 			.catch(async (e) => {
@@ -181,7 +228,7 @@ function NewSpotModal() {
 
 	return (
 		<>
-			<h1>Create a new Spot</h1>
+			<h1>Update your Spot</h1>
 			<ul className="Global errors">
 				{Object.entries(errors).map(([k, v]) => (
 					<h3 key={k}>{v}</h3>
@@ -241,30 +288,6 @@ function NewSpotModal() {
 					place="Price per night (USD)"
 					extra={extra}
 				/>
-				<h2>Liven up your spot with photos</h2>
-				<p>Submit a link to at least one photo to publish your spot</p>
-				<TextInput
-					frontName=""
-					backName="previewImage"
-					place="Preview Image URL"
-					extra={extra}
-				/>
-				{imageSlots.map((img, idx) => (
-					<input
-						type="text"
-						key={idx}
-						name={String(idx)}
-						value={img}
-						placeholder="Image URL"
-						onChange={(e) =>
-							setImageSlots(
-								imageSlots.map((i, idx) =>
-									idx === Number(e.target.name) ? e.target.value : i,
-								),
-							)
-						}
-					/>
-				))}
 				<button
 					type="submit"
 					disabled={
@@ -279,4 +302,5 @@ function NewSpotModal() {
 	);
 }
 
-export default NewSpotModal;
+
+export default EditSpotPage;

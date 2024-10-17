@@ -6,6 +6,8 @@ import { useAppDispatch } from "./store/store";
 import SpotsList from "./components/SpotsList/SpotsList";
 import SpotDetails from "./components/SpotDetails/SpotDetails";
 import NewSpotModal from "./components/NewSpotModal/NewSpotModal";
+import MySpots from "./components/SpotsList/MySpots";
+import EditSpotPage from "./components/NewSpotModal/EditSpotPage";
 
 function Layout() {
 	const dispatch = useAppDispatch();
@@ -44,13 +46,27 @@ const router = createBrowserRouter([
 				children: [
 					{
 						path: ":spotId",
-						element: <SpotDetails />,
+						element: <Outlet />,
+						children: [
+							{
+								path: "",
+								element: <SpotDetails />,
+							},
+							{
+								path: "edit",
+								element: <EditSpotPage />,
+							},
+						],
+					},
+					{
+						path: "new",
+						element: <NewSpotModal />,
+					},
+					{
+						path: "current",
+						element: <MySpots />,
 					},
 				],
-			},
-			{
-				path: "newspot",
-				element: <NewSpotModal />,
 			},
 		],
 	},

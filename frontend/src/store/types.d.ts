@@ -52,7 +52,7 @@ declare namespace HotSpot {
 			// below fields are all conditional on partial data processing
 			partial: boolean;
 
-			images: { [key: number]: SpotImage };
+			images: Record<number, SpotImage>;
 			previewImage?: URL;
 			avgRating?: number;
 			numReviews?: number;
@@ -71,13 +71,11 @@ declare namespace HotSpot {
 		type ReviewId = number;
 		type SpotId = number;
 
-		interface SpotState {
-			[spotId: SpotId]: Spot;
-		}
+		type SpotState = Record<SpotId, Spot>;
 
 		interface ReviewState {
-			all: { [reviewId: ReviewId]: Review };
-			map: { [spotId: SpotId]: Set<ReviewId> };
+			all: Record<ReviewId, Review>;
+			map: Record<SpotId, Set<ReviewId>>;
 		}
 	}
 
