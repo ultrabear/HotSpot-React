@@ -1,1 +1,5 @@
-/* TODO: Add sitewide styles */
+.Global {
+  &.h-divider {
+    border: solid 1px black;
+  }
+}

@@ -79,12 +79,12 @@ const reviewsReducer = (state = initialState, action) => {
 				const review = transformSpotReview(itm);
 
 				if (review.spotId in newState.map) {
-					newState.map[review.spotId] = [
+					newState.map[review.spotId] = new Set([
 						...newState.map[review.spotId],
 						review.id,
-					];
+					]);
 				} else {
-					newState.map[review.spotId] = [review.id];
+					newState.map[review.spotId] = new Set([review.id]);
 				}
 
 				newState.all[review.id] = review;

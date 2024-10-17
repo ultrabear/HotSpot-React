@@ -17,5 +17,5 @@
 		"strict": true,
 		"strictFunctionTypes": false
 	},
-  "exclude": ["dist/"]
+	"exclude": ["dist/"]
 }

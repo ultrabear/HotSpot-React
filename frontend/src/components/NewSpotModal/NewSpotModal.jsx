@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useAppDispatch } from "../../store/store";
+import { useAppDispatch, useAppSelector } from "../../store/store";
 import { useModal } from "../../context/Modal";
 
 function NewSpotModal() {
@@ -21,6 +21,12 @@ function NewSpotModal() {
 	const [vErrs, setVErrs] = useState(
 		/** @type {{pass?: string, user?: string}} */ ({}),
 	);
+
+	const user = useAppSelector((s) => s.session.user);
+
+	if (!user) {
+		return <h1>Error: you cannot create a spot without an account!</h1>;
+	}
 
 	/**  @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>} e */
 	const handleChange = (e) => {
@@ -154,7 +160,6 @@ function NewSpotModal() {
 						}
 					/>
 				))}
-
 				<button type="submit">Create Spot</button>
 			</form>
 		</>

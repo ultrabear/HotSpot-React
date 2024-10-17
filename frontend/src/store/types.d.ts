@@ -77,7 +77,7 @@ declare namespace HotSpot {
 
 		interface ReviewState {
 			all: { [reviewId: ReviewId]: Review };
-			map: { [spotId: SpotId]: ReviewId[] };
+			map: { [spotId: SpotId]: Set<ReviewId> };
 		}
 	}
 

@@ -6,9 +6,12 @@ import { FaRegStar } from "react-icons/fa";
 export function formatRating(spot) {
 	return spot.avgRating ? (
 		<>
-			 <FaRegStar />{spot.avgRating}
+			<FaRegStar />
+			{spot.avgRating}
 		</>
 	) : (
-		<><FaRegStar /> New</>
+		<>
+			<FaRegStar /> New
+		</>
 	);
 }

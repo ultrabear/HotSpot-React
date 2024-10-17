@@ -61,3 +61,6 @@ export const useAppDispatch = useDispatch;
  * @type {<T>(_: (_: RootState) => T) => T}
  * */
 export const useAppSelector = useSelector;
+
+/** @returns {HotSpot.Store.UserState['user']} */
+export const useUser = () => useAppSelector((s) => s.session.user);
