@@ -5,6 +5,8 @@ import { getSpot } from "../../store/spots";
 import "./SpotDetails.css";
 import { formatRating } from "../../util";
 import { getReviews } from "../../store/review";
+import OpenModalButton from "../OpenModalButton/OpenModalButton";
+import NewReview from "../NewReview/NewReview";
 
 /**
  * @typedef {"no" | "yes" | "checking"} CheckStatus
@@ -52,7 +54,9 @@ function SpotDetails() {
 
 	const spot = useAppSelector((s) => (id in s.spots ? s.spots[id] : null));
 
-	const reviewIds = useAppSelector((s) => s.reviews.map[id] ?? []);
+	const reviews = useAppSelector((s) =>
+		[...(s.reviews.map[id] ?? [])].map((id) => s.reviews.all[id]),
+	);
 
 	const user = useUser();
 
@@ -115,11 +119,14 @@ function SpotDetails() {
 		</>
 	);
 
-	const reviewIdArr = [...reviewIds];
-	reviewIdArr.sort((a, b) => b - a);
+	reviews.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
 
-	const emptyReviewPrompt =
-		reviewIdArr.length === 0 && user !== null && user.id !== spot.ownerId;
+	const canReview =
+		user !== null &&
+		reviews.every((r) => r.user.id !== user.id) &&
+		user.id !== spot.ownerId;
+
+	const emptyReviewPrompt = reviews.length === 0 && canReview;
 
 	return (
 		<div className="SpotDetails">
@@ -161,8 +168,16 @@ function SpotDetails() {
 
 			<div className="reviews">
 				<h2>{reviewFmt}</h2>
-				{reviewIdArr.map((i) => (
-					<Review key={i} reviewId={i} />
+				{emptyReviewPrompt && <h2>Be the first to post a review!</h2>}
+				{canReview && (
+					<OpenModalButton
+						buttonText="Post Your Review"
+						modalComponent={<NewReview />}
+						onModalClose={() => setCheckReview("no")}
+					/>
+				)}
+				{reviews.map((i) => (
+					<Review key={i.id} reviewId={i.id} />
 				))}
 			</div>
 		</div>
