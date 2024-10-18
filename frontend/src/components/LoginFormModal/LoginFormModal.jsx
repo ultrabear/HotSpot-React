@@ -58,7 +58,7 @@ function LoginFormModal() {
 	}
 
 	return (
-		<>
+		<div className="Global Modal">
 			<h1>Log In</h1>
 			<form onSubmit={handleSubmit}>
 				<label>
@@ -89,7 +89,7 @@ function LoginFormModal() {
 				{vErrs.pass && <p className="error">{vErrs.pass}</p>}
 			</form>
 			<button onClick={demoLogin}>Login as Demo</button>
-		</>
+		</div>
 	);
 }
 

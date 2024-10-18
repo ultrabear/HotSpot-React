@@ -1,0 +1,16 @@
+.DeleteModal {
+
+  h1 {
+    margin: 0;
+  }
+
+  .yes button {
+    background-color: red;
+    color: white;
+  }
+
+  .no button {
+    background-color: grey;
+    color: white;
+  }
+}

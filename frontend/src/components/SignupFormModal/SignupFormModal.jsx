@@ -74,9 +74,9 @@ function SignupFormModal() {
 		confirmPassword.length < 6;
 
 	return (
-		<>
+		<div className="Global Modal">
 			<h1>Sign Up</h1>
-			<form onSubmit={handleSubmit}>
+			<form onSubmit={handleSubmit} className="Global Modal">
 				<label>
 					Email
 					<input
@@ -144,7 +144,7 @@ function SignupFormModal() {
 					Sign Up
 				</button>
 			</form>
-		</>
+		</div>
 	);
 }
 

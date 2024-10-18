@@ -113,8 +113,6 @@ function EditSpotPage() {
 					description: details.description,
 					name: details.name,
 					price: String(details.price),
-					previewImage:
-						details.SpotImages.find((img) => img.preview)?.url ?? "",
 				});
 			} finally {
 				setChecked("yes");

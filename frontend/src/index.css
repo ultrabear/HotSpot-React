@@ -6,4 +6,14 @@
   &.errors {
     color: red;
   }
+
+  &.Modal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+body {
+  font-family: sans-serif;
 }
