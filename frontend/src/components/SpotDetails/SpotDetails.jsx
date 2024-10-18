@@ -4,9 +4,10 @@ import { useState } from "react";
 import { getSpot } from "../../store/spots";
 import "./SpotDetails.css";
 import { formatRating } from "../../util";
-import { getReviews } from "../../store/review";
+import { deleteReview, getReviews } from "../../store/review";
 import OpenModalButton from "../OpenModalButton/OpenModalButton";
 import NewReview from "../NewReview/NewReview";
+import DeleteModal from "../DeleteModal/DeleteModal";
 
 /**
  * @typedef {"no" | "yes" | "checking"} CheckStatus
@@ -23,20 +24,50 @@ function checking(checked) {
 /**
  * @param {Object} param0
  * @param {number} param0.reviewId
- */
-function Review({ reviewId }) {
+ * @param {(_: CheckStatus) => void} param0.setCheckReview
+ * */
+function Review({ reviewId, setCheckReview }) {
 	const review = useAppSelector((s) => s.reviews.all[reviewId]);
+	const user = useUser();
+	const dispatch = useAppDispatch();
+
+	const deletable = user !== null && user.id === review.user.id;
+
+	const deleteCb = async () => {
+		const res = await dispatch(deleteReview(reviewId));
+
+		setCheckReview("no");
+
+		return res;
+	};
 
 	return (
 		<>
-			<h3>{review.user.firstName}</h3>
-			<h3 className="date">
+			<h3>
+				{review.user.firstName}
+				{deletable && (
+					<span style={{ color: "grey", fontSize: "smaller" }}> (you)</span>
+				)}
+			</h3>
+			<h3 className="date" style={{ color: "grey" }}>
 				{review.updatedAt.toLocaleString("default", {
 					month: "long",
 					year: "numeric",
 				})}
 			</h3>
 			<p>{review.review}</p>
+			{deletable && (
+				<OpenModalButton
+					buttonText="Delete"
+					modalComponent={
+						<DeleteModal
+							deleteCallback={deleteCb}
+							confirmText="delete this review?"
+							buttonType="Review"
+						/>
+					}
+				/>
+			)}
 		</>
 	);
 }
@@ -172,7 +203,6 @@ function SpotDetails() {
 							<NewReview
 								spotId={spot.id}
 								onClose={() => {
-									console.log("wtf");
 									setCheckReview("no");
 									setChecked("no");
 								}}
@@ -181,7 +211,7 @@ function SpotDetails() {
 					/>
 				)}
 				{reviews.map((i) => (
-					<Review key={i.id} reviewId={i.id} />
+					<Review key={i.id} reviewId={i.id} setCheckReview={setCheckReview} />
 				))}
 			</div>
 		</div>

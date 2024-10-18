@@ -60,6 +60,28 @@ export const getReviews = (spotId) => async (dispatch) => {
 	return response;
 };
 
+const DELETE_REVIEW = "reviews/DELETE_SINGLE";
+
+/**
+ * @param {number} reviewId
+ */
+const deleteReviewActor = (reviewId) => {
+	return { type: DELETE_REVIEW, payload: reviewId };
+};
+
+/**
+ * @param {number} reviewId
+ * @returns {import("./store").ThunkDispatchFn<Object>}
+ */
+export const deleteReview = (reviewId) => async (dispatch) => {
+	const response = await csrfFetch(`/api/reviews/${reviewId}`, {
+		method: "DELETE",
+	});
+	const res = await response.json();
+	dispatch(deleteReviewActor(reviewId));
+	return res;
+};
+
 /** @type {HotSpot.Store.ReviewState} */
 const initialState = { all: {}, map: {} };
 
@@ -69,6 +91,22 @@ const initialState = { all: {}, map: {} };
  */
 const reviewsReducer = (state = initialState, action) => {
 	switch (action.type) {
+		case DELETE_REVIEW: {
+			/** @type {number} */
+			const reviewId = action.payload;
+
+			const newState = { map: { ...state.map }, all: { ...state.all } };
+
+			const spot = newState.all[reviewId].spotId;
+
+			delete newState.all[reviewId];
+
+			newState.map[spot] = new Set([...newState.map[spot]]);
+			newState.map[spot].delete(reviewId);
+
+			return newState;
+		}
+
 		case SPOT_REVIEWS: {
 			const newState = { map: { ...state.map }, all: { ...state.all } };
 

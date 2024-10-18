@@ -46,6 +46,7 @@ function SpotTile({ spotId, crud }) {
 							<DeleteModal
 								deleteCallback={() => dispatch(deleteSpot(spotId))}
 								confirmText="remove this spot?"
+								buttonType="Spot"
 							/>
 						}
 					/>

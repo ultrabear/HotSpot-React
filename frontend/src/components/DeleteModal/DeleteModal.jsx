@@ -1,14 +1,15 @@
 import { useModal } from "../../context/Modal";
-import "./DeleteModal.css"
+import "./DeleteModal.css";
 
 /**
  * @template {any} T
  * @param {Object} param0
  * @param {() => Promise<T>} param0.deleteCallback
  * @param {string} param0.confirmText
+ * @param {string} param0.buttonType
  * @param {(v: T) => void} [param0.returns]
  */
-function DeleteModal({ deleteCallback, confirmText, returns }) {
+function DeleteModal({ deleteCallback, confirmText, buttonType, returns }) {
 	const { closeModal } = useModal();
 
 	const runDelete = async () => {
@@ -24,10 +25,14 @@ function DeleteModal({ deleteCallback, confirmText, returns }) {
 			<h1>Confirm Delete</h1>
 			<p>Are you sure you want to {confirmText}</p>
 			<div className="yes">
-				<button onClick={runDelete}><h3>Yes (Delete Spot)</h3></button>
+				<button onClick={runDelete}>
+					<h3>Yes (Delete {buttonType})</h3>
+				</button>
 			</div>
 			<div className="no">
-				<button onClick={closeModal}><h3>No (Keep Spot)</h3></button>
+				<button onClick={closeModal}>
+					<h3>No (Keep {buttonType})</h3>
+				</button>
 			</div>
 		</div>
 	);
