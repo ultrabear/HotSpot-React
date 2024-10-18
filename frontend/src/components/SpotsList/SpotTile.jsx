@@ -2,9 +2,35 @@ import { Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../store/store";
 import { formatRating } from "../../util";
 import OpenModalButton from "../OpenModalButton/OpenModalButton";
+import { useModal } from "../../context/Modal";
+import { csrfFetch } from "../../store/csrf";
+import { useDispatch } from "react-redux";
+import { deleteSpot } from "../../store/spots";
 
-function DeleteSpot() {
-	return <>Are you Sure about this??</>;
+/**
+ * @param {Object} param0
+ * @param {number} param0.spotId
+ */
+function DeleteSpot({ spotId }) {
+	const { closeModal } = useModal();
+	const dispatch = useAppDispatch();
+
+	const clickDeleteSpot = () => {
+		dispatch(deleteSpot(spotId)).then(closeModal);
+	};
+
+	return (
+		<>
+			<h1>Confirm Delete</h1>
+			<p>Are you sure you want to remove this spot from the listings?</p>
+			<div>
+				<button onClick={clickDeleteSpot}>Yes (Delete Spot)</button>
+			</div>
+			<div>
+				<button onClick={closeModal}>No (Keep Spot)</button>
+			</div>
+		</>
+	);
 }
 
 /**
@@ -43,7 +69,7 @@ function SpotTile({ spotId, crud }) {
 					</Link>
 					<OpenModalButton
 						buttonText="Delete"
-						modalComponent={<DeleteSpot />}
+						modalComponent={<DeleteSpot spotId={spot.id} />}
 					/>
 				</div>
 			)}

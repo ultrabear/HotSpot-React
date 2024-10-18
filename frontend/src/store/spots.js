@@ -123,6 +123,15 @@ const singleSpotInsert = (apiResults) => {
 	};
 };
 
+const DELETE_SPOT = "spots/DELETE_SINGLE";
+
+/**
+ * @param {number} id
+ */
+const deleteSpotAction = (id) => {
+	return { type: DELETE_SPOT, payload: id };
+};
+
 /**
  * @param {number} id
  * @returns {import("./store").ThunkDispatchFn<HotSpot.API.SingleSpot>}
@@ -134,6 +143,16 @@ export const getSpot = (id) => async (dispatch) => {
 	return data;
 };
 
+/**
+ * @param {number} id
+ * @returns {import("./store").ThunkDispatchFn<Response>}
+ */
+export const deleteSpot = (id) => async (dispatch) => {
+	const res = await csrfFetch(`/api/spots/${id}`, { method: "DELETE" });
+	dispatch(deleteSpotAction(id));
+	return res;
+};
+
 /** @type {HotSpot.Store.SpotState} */
 const initialState = {};
 
@@ -143,6 +162,11 @@ const initialState = {};
  */
 const spotsReducer = (state = initialState, action) => {
 	switch (action.type) {
+		case DELETE_SPOT: {
+			const { [action.payload]: _, ...newState } = state;
+
+			return newState;
+		}
 		case HYDRATE_MANY_SPOTS: {
 			const typedAction = /** @type {SpotsFromAPI} */ (
 				/** @type {any} */ (action)
