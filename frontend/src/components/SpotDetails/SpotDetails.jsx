@@ -138,12 +138,14 @@ function SpotDetails() {
 	const rest = images.slice(1);
 
 	const reviewFmt = (
-			<span data-testid="review-count">
+		<span data-testid="review-count">
+			<span>
 				{formatRating(spot)} {spot.numReviews ? "·" : false}{" "}
-				{spot.numReviews
-					? `${spot.numReviews} Review${spot.numReviews === 1 ? "" : "s"}`
-					: false}
 			</span>
+			{spot.numReviews
+				? `${spot.numReviews} Review${spot.numReviews === 1 ? "" : "s"}`
+				: false}
+		</span>
 	);
 
 	reviews.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
@@ -167,7 +169,11 @@ function SpotDetails() {
 				<img data-testid="spot-large-image" src={preview} />
 				<div className="non-preview">
 					{rest.map((i) => (
-						<img data-testid="spot-small-image" key={i.id} src={i.url.toString()} />
+						<img
+							data-testid="spot-small-image"
+							key={i.id}
+							src={i.url.toString()}
+						/>
 					))}
 				</div>
 			</div>
@@ -182,7 +188,7 @@ function SpotDetails() {
 				<div className="reservation" data-testid="spot-callout-box">
 					<div className="flex">
 						<span data-testid="spot-price">${spot.price} night</span>
-						<span data-testid="spot-rating">{reviewFmt}</span>
+						<p>{reviewFmt}</p>
 					</div>
 					<div className="reserve-button">
 						<button
@@ -199,9 +205,9 @@ function SpotDetails() {
 
 			<div className="reviews" data-testid="review-list">
 				<h2 data-testid="reviews-heading">{reviewFmt}</h2>
-				{emptyReviewPrompt && <h2>Leave your review here...</h2>}
+				{emptyReviewPrompt && <h2>Be the first to post a review!</h2>}
 				{canReview && (
-					<div data-testid="review-button">
+					<span data-testid="review-button">
 						<OpenModalButton
 							buttonText="Post Your Review"
 							modalComponent={
@@ -214,7 +220,7 @@ function SpotDetails() {
 								/>
 							}
 						/>
-					</div>
+					</span>
 				)}
 				{reviews.map((i) => (
 					<Review key={i.id} reviewId={i.id} setCheckReview={setCheckReview} />

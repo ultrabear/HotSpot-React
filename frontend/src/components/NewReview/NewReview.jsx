@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useModal } from "../../context/Modal";
 import { jsonPost } from "../../store/csrf";
 
+import { IoIosStar, IoIosStarOutline } from "react-icons/io";
+
 /**
  * @param {Object} param0
  * @param {number} param0.spotId
@@ -9,20 +11,26 @@ import { jsonPost } from "../../store/csrf";
  */
 function NewReview({ spotId, onClose }) {
 	const [review, setReview] = useState("");
-	const [stars, setStars] = useState("");
 	const [errs, setErrs] = useState({});
 
 	const { closeModal } = useModal();
+	const [stars, setStars] = useState(0);
 
 	/** @param {React.FormEvent<HTMLFormElement>} e */
-	const onSubmit = (e) => {
+	const onSubmit = async (e) => {
 		e.preventDefault();
 
-		jsonPost(`/api/spots/${spotId}/reviews`, { review, stars })
-			.then(() => {
-				onClose(), closeModal();
-			})
-			.catch(async (e) => setErrs((await e.json()).errors));
+		try {
+			await jsonPost(`/api/spots/${spotId}/reviews`, {
+				review,
+				stars: String(stars),
+			});
+
+			onClose();
+			closeModal();
+		} catch (e) {
+			setErrs((await /**@type{Response}*/ (e).json()).errors);
+		}
 	};
 
 	return (
@@ -39,22 +47,24 @@ function NewReview({ spotId, onClose }) {
 					value={review}
 					onChange={(e) => setReview(e.target.value)}
 				/>
-				<input
-					type="number"
-					min="1"
-					max="5"
-					value={stars}
-					onChange={(e) => setStars(e.target.value)}
-				/>{" "}
-				Stars
+				<div style={{ display: "flex", justifyContent: "center" }}>
+					{[...Array(5)].map((_, i) => {
+						return (
+							<button
+								data-testid="review-star-clickable"
+								type="button"
+								key={i}
+								onClick={() => setStars(i + 1)}
+							>
+								{i < stars ? <IoIosStar /> : <IoIosStarOutline />}
+							</button>
+						);
+					})}
+					Stars
+				</div>
 				<button
 					type="submit"
-					disabled={
-						review.length < 10 ||
-						isNaN(Number(stars)) ||
-						Number(stars) > 5 ||
-						Number(stars) < 1
-					}
+					disabled={review.length < 10 || stars > 5 || stars < 1}
 				>
 					Submit Your Review
 				</button>

@@ -7,7 +7,7 @@ export function formatRating(spot) {
 	return spot.avgRating ? (
 		<>
 			<FaRegStar />
-			{spot.avgRating}
+			<span data-testid="spot-rating">{` ${spot.avgRating.toFixed(1)}`}</span>
 		</>
 	) : (
 		<>
