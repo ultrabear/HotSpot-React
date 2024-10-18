@@ -23,16 +23,25 @@ function SpotTile({ spotId, crud }) {
 	}
 
 	return (
-		<li>
-			<Link to={`/spots/${spot.id}`} title={spot.name}>
-				<img src={imgUrl} width="300px" height="300px" />
-				<div className="line-one">
-					<span>
-						{spot.city}, {spot.state}
-					</span>
-					<span>{formatRating(spot)}</span>
+		<li data-testid="spot-tile">
+			<Link to={`/spots/${spot.id}`} title={spot.name} data-testid="spot-link">
+				<div data-testid="spot-name">
+					<div data-testid="spot-tooltip" title={spot.name}>
+						<img
+							src={imgUrl}
+							width="300px"
+							height="300px"
+							data-testid="spot-thumbnail-image"
+						/>
+						<div className="line-one">
+							<span data-testid="spot-city">
+								{spot.city}, {spot.state}
+							</span>
+							<span data-testid="spot-rating">{formatRating(spot)}</span>
+						</div>
+						<div data-testid="spot-price">{`$${spot.price} night`}</div>
+					</div>
 				</div>
-				<div>{`$${spot.price} night`}</div>
 			</Link>
 
 			{addModOpts && (

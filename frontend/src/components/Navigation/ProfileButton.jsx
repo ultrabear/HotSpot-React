@@ -72,7 +72,7 @@ function ProfileButton({ user }) {
 			<button onClick={toggleMenu}>
 				<AiOutlineUser />
 			</button>
-			<ul className={ulClassName} ref={ulRef}>
+			<ul className={ulClassName} ref={ulRef} data-testid="user-dropdown-menu">
 				{user ? (
 					<>
 						<li>Hello, {user.firstName}.</li>

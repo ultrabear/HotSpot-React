@@ -74,33 +74,13 @@ function SignupFormModal() {
 		confirmPassword.length < 6;
 
 	return (
-		<div className="Global Modal">
+		<div className="Global Modal" data-testid="sign-up-form">
 			<h1>Sign Up</h1>
 			<form onSubmit={handleSubmit} className="Global Modal">
 				<label>
-					Email
-					<input
-						type="text"
-						value={email}
-						onChange={(e) => setEmail(e.target.value)}
-						required
-					/>
-				</label>
-				{errors.email && <p>{errors.email}</p>}
-				<label>
-					Username
-					<input
-						type="text"
-						value={username}
-						onChange={(e) => setUsername(e.target.value)}
-						required
-						minLength={4}
-					/>
-				</label>
-				{errors.username && <p>{errors.username}</p>}
-				<label>
 					First Name
 					<input
+						data-testid="first-name-input"
 						type="text"
 						value={firstName}
 						onChange={(e) => setFirstName(e.target.value)}
@@ -111,6 +91,7 @@ function SignupFormModal() {
 				<label>
 					Last Name
 					<input
+						data-testid="last-name-input"
 						type="text"
 						value={lastName}
 						onChange={(e) => setLastName(e.target.value)}
@@ -118,9 +99,38 @@ function SignupFormModal() {
 					/>
 				</label>
 				{errors.lastName && <p>{errors.lastName}</p>}
+
+				<label>
+					Email
+					<input
+						data-testid="email-input"
+						type="text"
+						value={email}
+						onChange={(e) => setEmail(e.target.value)}
+						required
+					/>
+				</label>
+				{errors.email && (
+					<p data-testid="email-error-message">{errors.email}</p>
+				)}
+				<label>
+					Username
+					<input
+						data-testid="username-input"
+						type="text"
+						value={username}
+						onChange={(e) => setUsername(e.target.value)}
+						required
+						minLength={4}
+					/>
+				</label>
+				{errors.username && (
+					<p data-testid="username-error-message">{errors.username}</p>
+				)}
 				<label>
 					Password
 					<input
+						data-testid="password-input"
 						type="password"
 						value={password}
 						onChange={(e) => setPassword(e.target.value)}
@@ -132,6 +142,7 @@ function SignupFormModal() {
 				<label>
 					Confirm Password
 					<input
+						data-testid="confirm-password-input"
 						type="password"
 						value={confirmPassword}
 						onChange={(e) => setConfirmPassword(e.target.value)}
@@ -140,7 +151,11 @@ function SignupFormModal() {
 					/>
 				</label>
 				{errors.confirmPassword && <p>{errors.confirmPassword}</p>}
-				<button type="submit" disabled={disabled}>
+				<button
+					type="submit"
+					disabled={disabled}
+					data-testid="form-sign-up-button"
+				>
 					Sign Up
 				</button>
 			</form>

@@ -27,7 +27,7 @@ function SpotsList() {
 	}
 
 	return (
-		<ul className="spots-list">
+		<ul className="spots-list" data-testid="spots-list">
 			{spotsArr.map((s) => (
 				<SpotTile key={s.id} spotId={s.id} />
 			))}

@@ -58,14 +58,32 @@ const createSpot = async (details, imgUrls) => {
 	return spot.id;
 };
 
+/**
+ * @typedef {object} SectionProps
+ * @prop {number} index
+ * @prop {string} heading
+ * @prop {string} caption
+ */
+
+/**
+ * @param {React.PropsWithChildren & SectionProps} param0
+ */
+function FormSection({ index, heading, caption, children }) {
+	return (
+		<div data-testid={`section-${index}`}>
+			<h2 data-testid={`section-${index}-heading`}>{heading}</h2>
+			<p data-testid={`section-${index}-caption`}>{caption}</p>
+			{children}
+		</div>
+	);
+}
+
 function NewSpotModal() {
 	const [formInput, setFormInput] = useState({
 		country: "",
 		address: "",
 		city: "",
 		state: "",
-		lat: "",
-		lng: "",
 		description: "",
 		name: "",
 		price: "",
@@ -82,8 +100,6 @@ function NewSpotModal() {
 		 address?: string,
 		 city?: string,
 		 state?: string,
-		 lat?: string,
-		 lng?: string,
 		 description?: string,
 		 name?: string,
 		 price?: string,
@@ -156,10 +172,10 @@ function NewSpotModal() {
 	const handleSubmit = (e) => {
 		e.preventDefault();
 
-		const { lat, lng, price, previewImage, ...rest } = formInput;
+		const { price, previewImage, ...rest } = formInput;
 
 		createSpot(
-			{ lat: Number(lat), lng: Number(lng), price: Number(price), ...rest },
+			{ lat: 10, lng: 10, price: Number(price), ...rest },
 			[previewImage, ...imageSlots.filter((s) => s.length)],
 		)
 			.then(setEscape)
@@ -182,84 +198,92 @@ function NewSpotModal() {
 					<h3 key={k}>{v}</h3>
 				))}
 			</ul>
-			<form onSubmit={handleSubmit}>
-				<h2>Where&apos;s your place located?</h2>
-				<p>
-					Guests will only get your exact address once they booked a
-					reservation.
-				</p>
-				<TextInput frontName="Country" backName="country" extra={extra} />
-				<TextInput
-					frontName="Street Address"
-					backName="address"
-					place="Address"
-					extra={extra}
-				/>
-				<TextInput frontName="City" backName="city" extra={extra} />
-				<TextInput frontName="State" backName="state" extra={extra} />
-				<TextInput frontName="Latitude" backName="lat" extra={extra} />
-				<TextInput frontName="Longitude" backName="lng" extra={extra} />
-				<h2>Describe your place to guests</h2>
-				<p>
-					Mention the best features of your space, any special amenities like
-					fast wifi or parking, and what you love about the neighborhood
-				</p>
-				<textarea
-					name="description"
-					value={formInput["description"]}
-					placeholder="Please write at least 30 characters"
-					onChange={(e) => handleChange(e, "description")}
-				/>
-				<span className="Global errors">
-					{extra.vErrs["description"] ? extra.vErrs["description"] : false}
-				</span>
-				<h2>Create a title for your spot</h2>
-				<p>
-					Catch guests&apos; attention with a spot title that highlights what
-					makes your place special
-				</p>
-				<TextInput
-					frontName=""
-					backName="name"
-					place="Name of your spot"
-					extra={extra}
-				/>
-				<h2>Set a base price for your spot</h2>
-				<p>
-					Competitive pricing can help your listing stand out and rank higher in
-					search results
-				</p>
-				$
-				<TextInput
-					frontName=""
-					backName="price"
-					place="Price per night (USD)"
-					extra={extra}
-				/>
-				<h2>Liven up your spot with photos</h2>
-				<p>Submit a link to at least one photo to publish your spot</p>
-				<TextInput
-					frontName=""
-					backName="previewImage"
-					place="Preview Image URL"
-					extra={extra}
-				/>
-				{imageSlots.map((img, idx) => (
-					<input
-						type="text"
-						key={idx}
-						name={String(idx)}
-						value={img}
-						placeholder="Image URL"
-						onChange={(e) =>
-							setImageSlots(
-								imageSlots.map((i, idx) =>
-									idx === Number(e.target.name) ? e.target.value : i,
-								),
-							)
-						}
+			<form onSubmit={handleSubmit} data-testid="create-spot-form">
+				<FormSection
+					index={1}
+					heading="Where's your place located?"
+					caption="Guests will only get your exact address once they booked a reservation."
+				>
+					<TextInput frontName="Country" backName="country" extra={extra} />
+					<TextInput
+						frontName="Street Address"
+						backName="address"
+						extra={extra}
 					/>
-				))}
+					<TextInput frontName="City" backName="city" extra={extra} />
+					<TextInput frontName="State" backName="state" extra={extra} />
+				</FormSection>
+				<FormSection
+					index={2}
+					heading="Describe your place to guests"
+					caption={
+						"Mention the best features of your space, any special amenities " +
+						"like fast wifi or parking, and what you love about the neighborhood"
+					}
+				>
+					<textarea
+						name="description"
+						value={formInput["description"]}
+						placeholder="Please write at least 30 characters"
+						onChange={(e) => handleChange(e, "description")}
+					/>
+					<span className="Global errors">
+						{extra.vErrs["description"] ? extra.vErrs["description"] : false}
+					</span>
+				</FormSection>
+				<FormSection
+					index={3}
+					heading="Create a title for your spot"
+					caption="Catch guests' attention with a spot title that highlights what makes your place special"
+				>
+					<TextInput
+						frontName=""
+						backName="name"
+						place="Name of your spot"
+						extra={extra}
+					/>
+				</FormSection>
+				<FormSection
+					index={4}
+					heading="Set a base price for your spot"
+					caption="Competitive pricing can help your listing stand out and rank higher in search results"
+				>
+					$
+					<TextInput
+						frontName=""
+						backName="price"
+						place="Price per night (USD)"
+						extra={extra}
+					/>
+				</FormSection>
+				<FormSection
+					index={5}
+					heading="Liven up your spot with photos"
+					caption="Submit a link to at least one photo to publish your spot"
+				>
+					<TextInput
+						frontName=""
+						backName="previewImage"
+						place="Preview Image URL"
+						extra={extra}
+					/>
+					{imageSlots.map((img, idx) => (
+						<input
+							type="text"
+							key={idx}
+							name={String(idx)}
+							value={img}
+							placeholder="Image URL"
+							onChange={(e) =>
+								setImageSlots(
+									imageSlots.map((i, idx) =>
+										idx === Number(e.target.name) ? e.target.value : i,
+									),
+								)
+							}
+						/>
+					))}
+				</FormSection>
 				<button
 					type="submit"
 					disabled={

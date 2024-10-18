@@ -20,7 +20,7 @@ function LoginFormModal() {
 	const handleSubmit = (e) => {
 		e.preventDefault();
 		setErrors({});
-		return dispatch(sessionActions.login({ credential, password }))
+		dispatch(sessionActions.login({ credential, password }))
 			.then(closeModal)
 			.catch(async (res) => {
 				const data = await res.json();
@@ -52,18 +52,19 @@ function LoginFormModal() {
 		return dispatch(
 			sessionActions.login({
 				credential: "Demo-lition",
-				password: "password1",
+				password: "password",
 			}),
 		).then(closeModal);
 	}
 
 	return (
-		<div className="Global Modal">
+		<div className="Global Modal" data-testid="login-modal">
 			<h1>Log In</h1>
 			<form onSubmit={handleSubmit}>
 				<label>
 					Username or Email
 					<input
+						data-testid="credential-input"
 						type="text"
 						value={credential}
 						onChange={(e) => setCredential(e.target.value)}
@@ -73,22 +74,35 @@ function LoginFormModal() {
 				<label>
 					Password
 					<input
+						data-testid="password-input"
 						type="password"
 						value={password}
 						onChange={(e) => setPassword(e.target.value)}
 						required
 					/>
 				</label>
-				<button type="submit" disabled={Object.keys(vErrs).length !== 0}>
-					Log In
-				</button>
+				<div style={{ margin: "auto" }}>
+					<button
+						type="submit"
+						disabled={
+							Object.keys(vErrs).length !== 0 ||
+							password.length === 0 ||
+							credential.length === 0
+						}
+						data-testid="login-button"
+					>
+						Log In
+					</button>
+				</div>
 				{errors.message && (
 					<p className="error">The provided credentials were invalid</p>
 				)}
 				{vErrs.user && <p className="error">{vErrs.user}</p>}
 				{vErrs.pass && <p className="error">{vErrs.pass}</p>}
 			</form>
-			<button onClick={demoLogin}>Login as Demo</button>
+			<button onClick={demoLogin} data-testid="demo-user-login">
+				Login as Demo User
+			</button>
 		</div>
 	);
 }

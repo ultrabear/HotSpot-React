@@ -45,7 +45,7 @@ router.post(
 	validateSignup,
 	async (req: Request, res: Response, next: NextFunction) => {
 		const { email, password, username, firstName, lastName } = req.body;
-		const hashedPassword = bcrypt.hashSync(password);
+		const hashedPassword = await bcrypt.hash(password, 10);
 
 		try {
 			const user = await prisma.user.create({
@@ -77,8 +77,17 @@ router.post(
 				err.message = "User already exists";
 				err.errors = {};
 
-				for (const field of fields) {
-					err.errors[field] = `User with that ${field} already exists`;
+				const emailCh = (await prisma.user.count({ where: { email } })) === 1;
+				const usernameCh =
+					(await prisma.user.count({ where: { username } })) === 1;
+
+				for (const { field, flag } of [
+					{ field: "email", flag: emailCh },
+					{ field: "username", flag: usernameCh },
+				]) {
+					if (flag) {
+						err.errors[field] = `User with that ${field} already exists`;
+					}
 				}
 
 				return next(err);

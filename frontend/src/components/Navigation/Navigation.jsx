@@ -15,7 +15,7 @@ function Navigation({ isLoaded }) {
 			<ul className="nav-main">
 				<li>
 					<Link to="/" className="img">
-						<img src="/icon.webp" />
+						<img data-testid="logo" src="/icon.webp" />
 						HotSpot
 					</Link>
 				</li>
@@ -24,12 +24,12 @@ function Navigation({ isLoaded }) {
 						<>
 							<div className="createSpot">
 								{sessionUser !== null && (
-									<Link to="/spots/new">
+									<Link to="/spots/new" data-testid="create-new-spot-button">
 										<button>Create a Spot</button>
 									</Link>
 								)}
 							</div>
-							<div className="login">
+							<div className="login" data-testid="user-menu-button">
 								<ProfileButton user={sessionUser} />
 							</div>
 						</>

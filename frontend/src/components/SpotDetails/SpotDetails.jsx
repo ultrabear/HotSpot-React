@@ -42,20 +42,20 @@ function Review({ reviewId, setCheckReview }) {
 	};
 
 	return (
-		<>
+		<li data-testid="review-item">
 			<h3>
 				{review.user.firstName}
 				{deletable && (
 					<span style={{ color: "grey", fontSize: "smaller" }}> (you)</span>
 				)}
 			</h3>
-			<h3 className="date" style={{ color: "grey" }}>
+			<h3 className="date" style={{ color: "grey" }} data-testid="date">
 				{review.updatedAt.toLocaleString("default", {
 					month: "long",
 					year: "numeric",
 				})}
 			</h3>
-			<p>{review.review}</p>
+			<p data-testid="review-text">{review.review}</p>
 			{deletable && (
 				<OpenModalButton
 					buttonText="Delete"
@@ -68,7 +68,7 @@ function Review({ reviewId, setCheckReview }) {
 					}
 				/>
 			)}
-		</>
+		</li>
 	);
 }
 
@@ -138,12 +138,12 @@ function SpotDetails() {
 	const rest = images.slice(1);
 
 	const reviewFmt = (
-		<>
-			{formatRating(spot)} {spot.numReviews ? "·" : false}{" "}
-			{spot.numReviews
-				? `${spot.numReviews} Review${spot.numReviews === 1 ? "" : "s"}`
-				: false}
-		</>
+			<span data-testid="review-count">
+				{formatRating(spot)} {spot.numReviews ? "·" : false}{" "}
+				{spot.numReviews
+					? `${spot.numReviews} Review${spot.numReviews === 1 ? "" : "s"}`
+					: false}
+			</span>
 	);
 
 	reviews.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
@@ -156,35 +156,39 @@ function SpotDetails() {
 	const emptyReviewPrompt = reviews.length === 0 && canReview;
 
 	return (
-		<div className="SpotDetails">
-			<h1>{spot.name}</h1>
-			<h2>
-				{spot.city}, {spot.state}, {spot.country}
+		<div className="SpotDetails" data-testid="spot-tile">
+			<h1 data-testid="spot-name">{spot.name}</h1>
+			<h2 data-testid="spot-location">
+				<span data-testid="spot-city">{spot.city}</span>, {spot.state},{" "}
+				{spot.country}
 			</h2>
 
 			<div className="images">
-				<img src={preview} />
+				<img data-testid="spot-large-image" src={preview} />
 				<div className="non-preview">
 					{rest.map((i) => (
-						<img key={i.id} src={i.url.toString()} />
+						<img data-testid="spot-small-image" key={i.id} src={i.url.toString()} />
 					))}
 				</div>
 			</div>
 
 			<div className="details">
 				<span>
-					<h3>
+					<h3 data-testid="spot-host">
 						Hosted by {spot.owner?.firstName} {spot.owner?.lastName}
 					</h3>
-					<p>{spot.description}</p>
+					<p data-testid="spot-description">{spot.description}</p>
 				</span>
-				<div className="reservation">
+				<div className="reservation" data-testid="spot-callout-box">
 					<div className="flex">
-						<span>${spot.price} night</span>
-						<span>{reviewFmt}</span>
+						<span data-testid="spot-price">${spot.price} night</span>
+						<span data-testid="spot-rating">{reviewFmt}</span>
 					</div>
 					<div className="reserve-button">
-						<button onClick={() => alert("Feature coming soon!")}>
+						<button
+							onClick={() => alert("Feature coming soon")}
+							data-testid="reserve-button"
+						>
 							Reserve
 						</button>
 					</div>
@@ -193,22 +197,24 @@ function SpotDetails() {
 
 			<div className="Global h-divider" />
 
-			<div className="reviews">
-				<h2>{reviewFmt}</h2>
-				{emptyReviewPrompt && <h2>Be the first to post a review!</h2>}
+			<div className="reviews" data-testid="review-list">
+				<h2 data-testid="reviews-heading">{reviewFmt}</h2>
+				{emptyReviewPrompt && <h2>Leave your review here...</h2>}
 				{canReview && (
-					<OpenModalButton
-						buttonText="Post Your Review"
-						modalComponent={
-							<NewReview
-								spotId={spot.id}
-								onClose={() => {
-									setCheckReview("no");
-									setChecked("no");
-								}}
-							/>
-						}
-					/>
+					<div data-testid="review-button">
+						<OpenModalButton
+							buttonText="Post Your Review"
+							modalComponent={
+								<NewReview
+									spotId={spot.id}
+									onClose={() => {
+										setCheckReview("no");
+										setChecked("no");
+									}}
+								/>
+							}
+						/>
+					</div>
 				)}
 				{reviews.map((i) => (
 					<Review key={i.id} reviewId={i.id} setCheckReview={setCheckReview} />

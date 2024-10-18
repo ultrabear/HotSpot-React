@@ -16,9 +16,9 @@ Cookie: _csrf={{csrf}}
 {
   "email": "demo@user.io",
   "username": "Demo-lition",
-  "firstName": "John",
+  "firstName": "Demo",
   "lastName": "Doe",
-  "password": "password1"
+  "password": "password"
 }
 HTTP 201
 
