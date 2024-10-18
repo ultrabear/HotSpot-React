@@ -2,8 +2,6 @@ import { Link } from "react-router-dom";
 import ProfileButton from "./ProfileButton";
 import "./Navigation.css";
 import { useAppSelector } from "../../store/store";
-import OpenModalButton from "../OpenModalButton/OpenModalButton";
-import NewSpotModal from "../NewSpotModal/NewSpotModal";
 
 /**
  * @param {Object} param0

@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAppDispatch, useAppSelector, useUser } from "../../store/store";
-import { csrfFetch, jsonPost } from "../../store/csrf";
+import { jsonPost } from "../../store/csrf";
 import { useNavigate, useParams } from "react-router-dom";
 import { getSpot } from "../../store/spots";
 
@@ -44,29 +44,17 @@ function TextInput({ frontName, backName, place, extra }) {
  */
 
 /**
- * @param {CheckStatus} checked
- * @returns {boolean}
- */
-function checking(checked) {
-	return checked === "no" || checked === "checking";
-}
-
-/**
  * @param {Record<string, string | number>} details
  * @param {number} id
  * @returns {Promise<number>}
  *
  */
 const editSpot = async (details, id) => {
-	try {
-		const res = await jsonPost(`/api/spots/${id}`, details, "PUT");
+	const res = await jsonPost(`/api/spots/${id}`, details, "PUT");
 
-		const spot = await res.json();
+	const spot = await res.json();
 
-		return spot.id;
-	} catch (e) {
-		throw e;
-	}
+	return spot.id;
 };
 
 function EditSpotPage() {
@@ -76,15 +64,8 @@ function EditSpotPage() {
 	const id = Number(spotId);
 
 	const [checked, setChecked] = useState(/** @type {CheckStatus}*/ ("no"));
-	const [checkReview, setCheckReview] = useState(
-		/** @type {CheckStatus}*/ ("no"),
-	);
 
 	const spot = useAppSelector((s) => (id in s.spots ? s.spots[id] : null));
-
-	const reviews = useAppSelector((s) =>
-		[...(s.reviews.map[id] ?? [])].map((id) => s.reviews.all[id]),
-	);
 
 	const [formInput, setFormInput] = useState({
 		country: "",
@@ -96,9 +77,7 @@ function EditSpotPage() {
 		description: "",
 		name: "",
 		price: "",
-		previewImage: "",
 	});
-	const [imageSlots, setImageSlots] = useState(["", "", "", ""]);
 	const [escape, setEscape] = useState(/** @type {false | number} */ (false));
 	const [errors, setErrors] = useState(
 		/** @type {Record<string, string>} */ ({}),
@@ -114,7 +93,6 @@ function EditSpotPage() {
 		 description?: string,
 		 name?: string,
 		 price?: string,
-		 previewImage?: string,
 		}} */ ({}),
 	);
 	const nav = useNavigate();
@@ -208,7 +186,7 @@ function EditSpotPage() {
 	const handleSubmit = (e) => {
 		e.preventDefault();
 
-		const { lat, lng, price, previewImage, ...rest } = formInput;
+		const { lat, lng, price, ...rest } = formInput;
 
 		editSpot(
 			{ lat: Number(lat), lng: Number(lng), price: Number(price), ...rest },
@@ -235,7 +213,7 @@ function EditSpotPage() {
 				))}
 			</ul>
 			<form onSubmit={handleSubmit}>
-				<h2>Where's your place located?</h2>
+				<h2>Where&apos;s your place located?</h2>
 				<p>
 					Guests will only get your exact address once they booked a
 					reservation.
@@ -267,8 +245,8 @@ function EditSpotPage() {
 				</span>
 				<h2>Create a title for your spot</h2>
 				<p>
-					Catch guests' attention with a spot title that highlights what makes
-					your place special
+					Catch guests&apos; attention with a spot title that highlights what
+					makes your place special
 				</p>
 				<TextInput
 					frontName=""

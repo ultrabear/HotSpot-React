@@ -2,9 +2,6 @@ import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../store/store";
 import { getSpots, spotsList } from "../../store/spots";
 import "./SpotsList.css";
-import { Link } from "react-router-dom";
-import { formatRating } from "../../util";
-import { createSelector } from "reselect";
 import SpotTile from "./SpotTile";
 
 /**
@@ -19,6 +16,7 @@ function SpotsList() {
 	if (!hydrated) {
 		setHydrated(true);
 		(async () => {
+			// eslint-disable-next-line no-constant-condition
 			for (let page = 1; true; page++) {
 				const res = await dispatch(getSpots(page, 20));
 				if (res.Spots.length !== 20) {

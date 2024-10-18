@@ -1,13 +1,12 @@
 import { useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector, useUser } from "../../store/store";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { getSpot } from "../../store/spots";
 import "./SpotDetails.css";
 import { formatRating } from "../../util";
 import { getReviews } from "../../store/review";
 import OpenModalButton from "../OpenModalButton/OpenModalButton";
 import NewReview from "../NewReview/NewReview";
-import { createSelector } from "reselect";
 
 /**
  * @typedef {"no" | "yes" | "checking"} CheckStatus

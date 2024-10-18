@@ -3,8 +3,6 @@ import { useAppDispatch, useAppSelector } from "../../store/store";
 import { formatRating } from "../../util";
 import OpenModalButton from "../OpenModalButton/OpenModalButton";
 import { useModal } from "../../context/Modal";
-import { csrfFetch } from "../../store/csrf";
-import { useDispatch } from "react-redux";
 import { deleteSpot } from "../../store/spots";
 
 /**

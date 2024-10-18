@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector, useUser } from "../../store/store";
-import { csrfFetch, jsonPost } from "../../store/csrf";
+import { useState } from "react";
+import { useUser } from "../../store/store";
+import { jsonPost } from "../../store/csrf";
 import { useNavigate } from "react-router-dom";
 
 /**
@@ -45,25 +45,20 @@ function TextInput({ frontName, backName, place, extra }) {
  *
  */
 const createSpot = async (details, imgUrls) => {
-	try {
-		const res = await jsonPost("/api/spots", details);
+	const res = await jsonPost("/api/spots", details);
 
-		const spot = await res.json();
+	const spot = await res.json();
 
-		const images = imgUrls.map((url, idx) =>
-			jsonPost(`/api/spots/${spot.id}/images`, { url, preview: idx === 0 }),
-		);
+	const images = imgUrls.map((url, idx) =>
+		jsonPost(`/api/spots/${spot.id}/images`, { url, preview: idx === 0 }),
+	);
 
-		await Promise.all(images);
+	await Promise.all(images);
 
-		return spot.id;
-	} catch (e) {
-		throw e;
-	}
+	return spot.id;
 };
 
 function NewSpotModal() {
-	const dispatch = useAppDispatch();
 	const [formInput, setFormInput] = useState({
 		country: "",
 		address: "",
@@ -188,7 +183,7 @@ function NewSpotModal() {
 				))}
 			</ul>
 			<form onSubmit={handleSubmit}>
-				<h2>Where's your place located?</h2>
+				<h2>Where&apos;s your place located?</h2>
 				<p>
 					Guests will only get your exact address once they booked a
 					reservation.
@@ -220,8 +215,8 @@ function NewSpotModal() {
 				</span>
 				<h2>Create a title for your spot</h2>
 				<p>
-					Catch guests' attention with a spot title that highlights what makes
-					your place special
+					Catch guests&apos; attention with a spot title that highlights what
+					makes your place special
 				</p>
 				<TextInput
 					frontName=""

@@ -163,7 +163,9 @@ const initialState = {};
 const spotsReducer = (state = initialState, action) => {
 	switch (action.type) {
 		case DELETE_SPOT: {
-			const { [action.payload]: _, ...newState } = state;
+			const { [action.payload]: unused, ...newState } = state;
+
+			unused;
 
 			return newState;
 		}
