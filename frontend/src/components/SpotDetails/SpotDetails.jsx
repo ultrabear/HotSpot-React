@@ -64,6 +64,7 @@ function Review({ reviewId, setCheckReview }) {
 							deleteCallback={deleteCb}
 							confirmText="delete this review?"
 							buttonType="Review"
+							internal="review"
 						/>
 					}
 				/>
@@ -205,23 +206,26 @@ function SpotDetails() {
 
 			<div className="reviews" data-testid="review-list">
 				<h2 data-testid="reviews-heading">{reviewFmt}</h2>
-				{emptyReviewPrompt && <h2>Be the first to post a review!</h2>}
 				{canReview && (
 					<span data-testid="review-button">
-						<OpenModalButton
-							buttonText="Post Your Review"
-							modalComponent={
-								<NewReview
-									spotId={spot.id}
-									onClose={() => {
-										setCheckReview("no");
-										setChecked("no");
-									}}
-								/>
-							}
-						/>
+						<span data-testid="review-modal">
+							<OpenModalButton
+								buttonText="Post Your Review"
+								modalComponent={
+									<NewReview
+										spotId={spot.id}
+										onClose={() => {
+											setCheckReview("no");
+											setChecked("no");
+										}}
+									/>
+								}
+							/>
+						</span>
 					</span>
 				)}
+				<div className="Global gap" />
+				{emptyReviewPrompt && <h2>Be the first to post a review!</h2>}
 				{reviews.map((i) => (
 					<Review key={i.id} reviewId={i.id} setCheckReview={setCheckReview} />
 				))}

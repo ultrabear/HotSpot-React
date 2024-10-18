@@ -10,8 +10,8 @@ export function formatRating(spot) {
 			<span data-testid="spot-rating">{` ${spot.avgRating.toFixed(1)}`}</span>
 		</>
 	) : (
-		<>
+		<span data-testid="spot-rating">
 			<FaRegStar /> New
-		</>
+		</span>
 	);
 }

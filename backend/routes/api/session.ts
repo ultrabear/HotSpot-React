@@ -31,7 +31,7 @@ router.post(
 			},
 		});
 
-		if (!user || !bcrypt.compareSync(password, user.hashedPassword)) {
+		if (!user || !(await bcrypt.compare(password, user.hashedPassword))) {
 			res.status(401);
 			return res.json({ message: "Invalid credentials" });
 		}

@@ -35,7 +35,7 @@ function NewReview({ spotId, onClose }) {
 
 	return (
 		<div className="Global Modal">
-			<form className="NewReview" onSubmit={onSubmit}>
+			<form className="NewReview" onSubmit={onSubmit} data-testid="review-form">
 				<h2>How was your stay?</h2>
 				<span className="Global errors">
 					{Object.values(errs).map((e) => (

@@ -3,41 +3,7 @@ import { useAppDispatch, useAppSelector, useUser } from "../../store/store";
 import { jsonPost } from "../../store/csrf";
 import { useNavigate, useParams } from "react-router-dom";
 import { getSpot } from "../../store/spots";
-
-/**
- * @param {Object} param0
- * @param {string} param0.frontName
- * @param {string} param0.backName
- * @param {string} [param0.place]
-* @param {Object} param0.extra
-* @param {Record<string, string>} param0.extra.formInput
- * @param {(e: any, pretty: string) => void} param0.extra.handleChange
- * @param {Record<string, string>} param0.extra.vErrs
- 
- */
-function TextInput({ frontName, backName, place, extra }) {
-	if (place === undefined) {
-		place = frontName;
-	}
-
-	const pretty = frontName.length ? frontName : backName;
-
-	return (
-		<>
-			{frontName}
-			<input
-				type="text"
-				name={backName}
-				value={extra.formInput[backName]}
-				placeholder={place}
-				onChange={(e) => extra.handleChange(e, pretty)}
-			/>
-			<span className="Global errors">
-				{extra.vErrs[backName] ? extra.vErrs[backName] : false}
-			</span>
-		</>
-	);
-}
+import { TextInput, FormSection } from "./TextInput";
 
 /**
  * @typedef {"no" | "yes" | "checking"} CheckStatus
@@ -203,67 +169,72 @@ function EditSpotPage() {
 	}
 
 	return (
-		<>
+		<div className="SpotForm">
 			<h1>Update your Spot</h1>
 			<ul className="Global errors">
 				{Object.entries(errors).map(([k, v]) => (
 					<h3 key={k}>{v}</h3>
 				))}
 			</ul>
-			<form onSubmit={handleSubmit}>
-				<h2>Where&apos;s your place located?</h2>
-				<p>
-					Guests will only get your exact address once they booked a
-					reservation.
-				</p>
-				<TextInput frontName="Country" backName="country" extra={extra} />
-				<TextInput
-					frontName="Street Address"
-					backName="address"
-					place="Address"
-					extra={extra}
-				/>
-				<TextInput frontName="City" backName="city" extra={extra} />
-				<TextInput frontName="State" backName="state" extra={extra} />
-				<TextInput frontName="Latitude" backName="lat" extra={extra} />
-				<TextInput frontName="Longitude" backName="lng" extra={extra} />
-				<h2>Describe your place to guests</h2>
-				<p>
-					Mention the best features of your space, any special amenities like
-					fast wifi or parking, and what you love about the neighborhood
-				</p>
-				<textarea
-					name="description"
-					value={formInput["description"]}
-					placeholder="Please write at least 30 characters"
-					onChange={(e) => handleChange(e, "description")}
-				/>
-				<span className="Global errors">
-					{extra.vErrs["description"] ? extra.vErrs["description"] : false}
-				</span>
-				<h2>Create a title for your spot</h2>
-				<p>
-					Catch guests&apos; attention with a spot title that highlights what
-					makes your place special
-				</p>
-				<TextInput
-					frontName=""
-					backName="name"
-					place="Name of your spot"
-					extra={extra}
-				/>
-				<h2>Set a base price for your spot</h2>
-				<p>
-					Competitive pricing can help your listing stand out and rank higher in
-					search results
-				</p>
-				$
-				<TextInput
-					frontName=""
-					backName="price"
-					place="Price per night (USD)"
-					extra={extra}
-				/>
+			<form onSubmit={handleSubmit} data-testid="create-spot-form">
+				<FormSection
+					index={1}
+					heading="Where's your place located?"
+					caption="Guests will only get your exact address once they booked a reservation."
+				>
+					<TextInput frontName="Country" backName="country" extra={extra} />
+					<TextInput
+						frontName="Street Address"
+						backName="address"
+						extra={extra}
+					/>
+					<TextInput frontName="City" backName="city" extra={extra} />
+					<TextInput frontName="State" backName="state" extra={extra} />
+				</FormSection>
+				<FormSection
+					index={2}
+					heading="Describe your place to guests"
+					caption={
+						"Mention the best features of your space, any special amenities " +
+						"like fast wifi or parking, and what you love about the neighborhood."
+					}
+				>
+					<textarea
+						name="description"
+						value={formInput["description"]}
+						placeholder="Please write at least 30 characters"
+						onChange={(e) => handleChange(e, "description")}
+					/>
+					<span className="Global errors">
+						{extra.vErrs["description"] ? extra.vErrs["description"] : false}
+					</span>
+				</FormSection>
+				<FormSection
+					index={3}
+					heading="Create a title for your spot"
+					caption="Catch guests' attention with a spot title that highlights what makes your place special."
+				>
+					<TextInput
+						frontName=""
+						backName="name"
+						place="Name of your spot"
+						extra={extra}
+					/>
+				</FormSection>
+				<FormSection
+					index={4}
+					heading="Set a base price for your spot"
+					caption="Competitive pricing can help your listing stand out and rank higher in search results."
+				>
+					$
+					<TextInput
+						frontName=""
+						backName="price"
+						place="Price per night (USD)"
+						extra={extra}
+					/>
+				</FormSection>
+
 				<button
 					type="submit"
 					disabled={
@@ -271,10 +242,10 @@ function EditSpotPage() {
 						Object.keys(vErrs).length !== 0
 					}
 				>
-					Create Spot
+					Update your Spot
 				</button>
 			</form>
-		</>
+		</div>
 	);
 }
 

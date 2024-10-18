@@ -7,9 +7,16 @@ import "./DeleteModal.css";
  * @param {() => Promise<T>} param0.deleteCallback
  * @param {string} param0.confirmText
  * @param {string} param0.buttonType
+ * @param {string} param0.internal
  * @param {(v: T) => void} [param0.returns]
  */
-function DeleteModal({ deleteCallback, confirmText, buttonType, returns }) {
+function DeleteModal({
+	deleteCallback,
+	confirmText,
+	buttonType,
+	returns,
+	internal,
+}) {
 	const { closeModal } = useModal();
 
 	const runDelete = async () => {
@@ -21,18 +28,26 @@ function DeleteModal({ deleteCallback, confirmText, buttonType, returns }) {
 	};
 
 	return (
-		<div className="DeleteModal Global Modal">
+		<div className="DeleteModal Global Modal" data-testid={`delete-${internal}-modal`}>
 			<h1>Confirm Delete</h1>
 			<p>Are you sure you want to {confirmText}</p>
+			<div>
 			<div className="yes">
-				<button onClick={runDelete}>
+				<button
+					onClick={runDelete}
+					data-testid={`confirm-delete-${internal}-button`}
+				>
 					<h3>Yes (Delete {buttonType})</h3>
 				</button>
 			</div>
 			<div className="no">
-				<button onClick={closeModal}>
+				<button
+					onClick={closeModal}
+					data-testid={`cancel-delete-${internal}-button`}
+				>
 					<h3>No (Keep {buttonType})</h3>
 				</button>
+			</div>
 			</div>
 		</div>
 	);

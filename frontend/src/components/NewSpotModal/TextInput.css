@@ -1,0 +1,4 @@
+.FormSection {
+  display: flex;
+  flex-direction: column;
+}

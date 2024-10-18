@@ -2,41 +2,9 @@ import { useState } from "react";
 import { useUser } from "../../store/store";
 import { jsonPost } from "../../store/csrf";
 import { useNavigate } from "react-router-dom";
+import { TextInput, FormSection } from "./TextInput";
 
-/**
- * @param {Object} param0
- * @param {string} param0.frontName
- * @param {string} param0.backName
- * @param {string} [param0.place]
-* @param {Object} param0.extra
-* @param {Record<string, string>} param0.extra.formInput
- * @param {(e: any, pretty: string) => void} param0.extra.handleChange
- * @param {Record<string, string>} param0.extra.vErrs
- 
- */
-function TextInput({ frontName, backName, place, extra }) {
-	if (place === undefined) {
-		place = frontName;
-	}
-
-	const pretty = frontName.length ? frontName : backName;
-
-	return (
-		<>
-			{frontName}
-			<input
-				type="text"
-				name={backName}
-				value={extra.formInput[backName]}
-				placeholder={place}
-				onChange={(e) => extra.handleChange(e, pretty)}
-			/>
-			<span className="Global errors">
-				{extra.vErrs[backName] ? extra.vErrs[backName] : false}
-			</span>
-		</>
-	);
-}
+import "./SpotForm.css";
 
 /**
  * @param {Record<string, string | number>} details
@@ -57,26 +25,6 @@ const createSpot = async (details, imgUrls) => {
 
 	return spot.id;
 };
-
-/**
- * @typedef {object} SectionProps
- * @prop {number} index
- * @prop {string} heading
- * @prop {string} caption
- */
-
-/**
- * @param {React.PropsWithChildren & SectionProps} param0
- */
-function FormSection({ index, heading, caption, children }) {
-	return (
-		<div data-testid={`section-${index}`}>
-			<h2 data-testid={`section-${index}-heading`}>{heading}</h2>
-			<p data-testid={`section-${index}-caption`}>{caption}</p>
-			{children}
-		</div>
-	);
-}
 
 function NewSpotModal() {
 	const [formInput, setFormInput] = useState({
@@ -113,16 +61,21 @@ function NewSpotModal() {
 	 * @returns { true | string }
 	 */
 
-	const numcheck = (v) => (isNaN(Number(v)) ? "(a number)" : true);
+	const numcheck = (v) => (isNaN(Number(v)) ? "Price per night is required" : true);
 
 	/**
 	 * @type {Record<string, (v: string) => true | string>}
 	 */
 	const validators = {
-		description: (v) => (v.length >= 30 ? true : "at least 30 characters"),
+		description: (v) => (v.length >= 30 ? true : "Description needs 30 or more characters"),
 		price: numcheck,
-		lat: numcheck,
-		lng: numcheck,
+	};
+
+	const snowFlakes = {
+		description: "Description needs 30 or more characters",
+		price: "Price per night is required",
+		previewImage: "Preview Image URL is required",
+
 	};
 
 	const user = useUser();
@@ -138,15 +91,16 @@ function NewSpotModal() {
 		const val = e.target.value;
 		const name = e.target.name;
 
-		handleChangeInner(name, val, pretty);
+		setVErrs(handleChangeInner(name, val, pretty, vErrs));
 	};
 
 	/**
 	 * @param {string} name
 	 * @param {string} val
 	 * @param {string} pretty
+	 * @param {any} vErrs
 	 * */
-	const handleChangeInner = (name, val, pretty) => {
+	const handleChangeInner = (name, val, pretty, vErrs) => {
 		setFormInput({
 			...formInput,
 			[name]: val,
@@ -156,13 +110,22 @@ function NewSpotModal() {
 
 		const fmt = vname !== true ? ` ${vname}` : "";
 
+		let last = fmt.length ? fmt : `${pretty} is required`
+
+		if (name in snowFlakes) {
+			//@ts-ignore
+			last = snowFlakes[name];
+		}
+
+
+
 		if (val.length === 0 || vname !== true) {
-			setVErrs({ ...vErrs, [name]: `Please set a valid ${pretty}${fmt}` });
+			return { ...vErrs, [name]: last };
 		} else {
 			const rest = { ...vErrs };
 			//@ts-ignore
 			delete rest[name];
-			setVErrs(rest);
+			return rest;
 		}
 	};
 
@@ -172,12 +135,38 @@ function NewSpotModal() {
 	const handleSubmit = (e) => {
 		e.preventDefault();
 
+		const forms = Object.entries({
+			country: "Country",
+			address: "Address",
+			city: "City",
+			state: "State",
+			description: "Description",
+			name: "Name",
+			price: "Price",
+			previewImage: "Preview Image",
+		});
+
+		let errs = {};
+
+		for (const data of forms) {
+			const [name, pretty] = data;
+
+			//@ts-ignore
+			errs = handleChangeInner(name, formInput[name], pretty, errs);
+		}
+
+		setVErrs(errs);
+
+		if (Object.keys(errs).length !== 0) {
+			return;
+		}
+
 		const { price, previewImage, ...rest } = formInput;
 
-		createSpot(
-			{ lat: 10, lng: 10, price: Number(price), ...rest },
-			[previewImage, ...imageSlots.filter((s) => s.length)],
-		)
+		createSpot({ lat: 10, lng: 10, price: Number(price), ...rest }, [
+			previewImage,
+			...imageSlots.filter((s) => s.length),
+		])
 			.then(setEscape)
 			.catch(async (e) => {
 				setErrors((await e.json()).errors);
@@ -191,8 +180,8 @@ function NewSpotModal() {
 	}
 
 	return (
-		<>
-			<h1>Create a new Spot</h1>
+		<div className="SpotForm">
+			<h1 data-testid="form-title">Create a New Spot</h1>
 			<ul className="Global errors">
 				{Object.entries(errors).map(([k, v]) => (
 					<h3 key={k}>{v}</h3>
@@ -218,7 +207,7 @@ function NewSpotModal() {
 					heading="Describe your place to guests"
 					caption={
 						"Mention the best features of your space, any special amenities " +
-						"like fast wifi or parking, and what you love about the neighborhood"
+						"like fast wifi or parking, and what you love about the neighborhood."
 					}
 				>
 					<textarea
@@ -234,7 +223,7 @@ function NewSpotModal() {
 				<FormSection
 					index={3}
 					heading="Create a title for your spot"
-					caption="Catch guests' attention with a spot title that highlights what makes your place special"
+					caption="Catch guests' attention with a spot title that highlights what makes your place special."
 				>
 					<TextInput
 						frontName=""
@@ -246,7 +235,7 @@ function NewSpotModal() {
 				<FormSection
 					index={4}
 					heading="Set a base price for your spot"
-					caption="Competitive pricing can help your listing stand out and rank higher in search results"
+					caption="Competitive pricing can help your listing stand out and rank higher in search results."
 				>
 					$
 					<TextInput
@@ -254,22 +243,24 @@ function NewSpotModal() {
 						backName="price"
 						place="Price per night (USD)"
 						extra={extra}
+						customType="number"
 					/>
 				</FormSection>
 				<FormSection
 					index={5}
 					heading="Liven up your spot with photos"
-					caption="Submit a link to at least one photo to publish your spot"
+					caption="Submit a link to at least one photo to publish your spot."
 				>
 					<TextInput
 						frontName=""
 						backName="previewImage"
 						place="Preview Image URL"
 						extra={extra}
+						customType="url"
 					/>
 					{imageSlots.map((img, idx) => (
 						<input
-							type="text"
+							type="url"
 							key={idx}
 							name={String(idx)}
 							value={img}
@@ -284,17 +275,9 @@ function NewSpotModal() {
 						/>
 					))}
 				</FormSection>
-				<button
-					type="submit"
-					disabled={
-						Object.values(formInput).some((s) => s.length === 0) ||
-						Object.keys(vErrs).length !== 0
-					}
-				>
-					Create Spot
-				</button>
+				<button type="submit">Create Spot</button>
 			</form>
-		</>
+		</div>
 	);
 }
 

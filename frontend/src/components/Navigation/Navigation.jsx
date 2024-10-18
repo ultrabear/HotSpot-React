@@ -25,7 +25,7 @@ function Navigation({ isLoaded }) {
 							<div className="createSpot">
 								{sessionUser !== null && (
 									<Link to="/spots/new" data-testid="create-new-spot-button">
-										<button>Create a Spot</button>
+										<button>Create a New Spot</button>
 									</Link>
 								)}
 							</div>

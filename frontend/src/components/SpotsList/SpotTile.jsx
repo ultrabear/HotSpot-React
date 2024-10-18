@@ -37,7 +37,7 @@ function SpotTile({ spotId, crud }) {
 							<span data-testid="spot-city">
 								{spot.city}, {spot.state}
 							</span>
-							<span data-testid="spot-rating">{formatRating(spot)}</span>
+							<span>{formatRating(spot)}</span>
 						</div>
 						<div data-testid="spot-price">{`$${spot.price} night`}</div>
 					</div>
@@ -49,16 +49,19 @@ function SpotTile({ spotId, crud }) {
 					<Link to={`/spots/${spotId}/edit`}>
 						<button>Update</button>
 					</Link>
-					<OpenModalButton
-						buttonText="Delete"
-						modalComponent={
-							<DeleteModal
-								deleteCallback={() => dispatch(deleteSpot(spotId))}
-								confirmText="remove this spot?"
-								buttonType="Spot"
-							/>
-						}
-					/>
+					<span>
+						<OpenModalButton
+							buttonText="Delete"
+							modalComponent={
+								<DeleteModal
+									deleteCallback={() => dispatch(deleteSpot(spotId))}
+									confirmText="remove this spot?"
+									buttonType="Spot"
+									internal="spot"
+								/>
+							}
+						/>
+					</span>
 				</div>
 			)}
 		</li>

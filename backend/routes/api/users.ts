@@ -45,7 +45,7 @@ router.post(
 	validateSignup,
 	async (req: Request, res: Response, next: NextFunction) => {
 		const { email, password, username, firstName, lastName } = req.body;
-		const hashedPassword = await bcrypt.hash(password, 10);
+		const hashedPassword = await bcrypt.hash(password, 2);
 
 		try {
 			const user = await prisma.user.create({

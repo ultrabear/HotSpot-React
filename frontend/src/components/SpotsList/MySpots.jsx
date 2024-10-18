@@ -31,11 +31,9 @@ function MySpots() {
 		<div className="MySpots">
 			<h1>Manage Spots</h1>
 			{mySpots.length === 0 && (
-				<h2>
-					<Link to="/spots/new">Create a New Spot</Link>
-				</h2>
+					<button><Link to="/spots/new"><h2>Create a New Spot</h2></Link></button>
 			)}
-			<ul className="spots-list">
+			<ul className="spots-list" data-testid="user-spots">
 				{mySpots.map((s) => (
 					<SpotTile key={s.id} spotId={s.id} crud={true} />
 				))}

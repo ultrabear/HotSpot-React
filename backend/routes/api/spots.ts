@@ -545,7 +545,7 @@ router.get(
 				images: { where: { preview: true }, select: { url: true } },
 				reviews: { select: { stars: true } },
 			},
-			orderBy: { id: "asc" },
+			orderBy: { id: "desc" },
 			where,
 			skip: parsedSize * (parsedPage - 1),
 			take: parsedSize,
