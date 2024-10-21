@@ -1,51 +1,27 @@
-import { createStore, applyMiddleware, compose, combineReducers } from "redux";
-import thunk from "redux-thunk";
 import sessionReducer from "./session";
 import spotsReducer from "./spots";
 import { useDispatch, useSelector } from "react-redux";
 import reviewsReducer from "./review";
+import { configureStore } from "@reduxjs/toolkit";
 
-const rootReducer = combineReducers({
-	session: sessionReducer,
-	spots: spotsReducer,
-	reviews: reviewsReducer,
+export const store = configureStore({
+	reducer: {
+		session: sessionReducer,
+		spots: spotsReducer,
+		reviews: reviewsReducer,
+	},
 });
 
-let enhancer;
-//@ts-expect error aa crap
-if (import.meta.env.MODE === "production") {
-	enhancer = applyMiddleware(thunk);
-} else {
-	//@ts-expect-error debugging crap
-	const logger = (await import("redux-logger")).default;
-	const composeEnhancers =
-		//@ts-expect-error debugging crap
-		window["__REDUX_DEVTOOLS_EXTENSION_COMPOSE__"] || compose;
-	enhancer = composeEnhancers(applyMiddleware(thunk, logger));
-}
-
-export type RootState = ReturnType<typeof rootReducer>
-
-const configureStore = (preloadedState?: RootState) => {
-	return createStore(rootReducer, preloadedState, enhancer);
-};
-
-export default configureStore;
 
 
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
+// FIXME: remove
+export type ThunkDispatchFn<T> = (dispatch: AppDispatch) => Promise<T>;
 
-type AnyAction = import("redux").AnyAction;
 
-type Dispatch = import("react").Dispatch<AnyAction>;
+export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
+export const useAppSelector = useSelector.withTypes<RootState>();
 
-export type ThunkDispatchFn<T> = (dispatch: Dispatch) => Promise<T>;
-
-type DispatchTy = {
-	(inp: AnyAction): AnyAction;
-	<T>(inp: (_: Dispatch) => Promise<T>): Promise<T>;
-};
-
-export const useAppDispatch: () => DispatchTy = useDispatch;
-
-export const useAppSelector: <T>(_: (_: RootState) => T) => T = useSelector;
-export const useUser = (): HotSpot.Store.UserState['user'] => useAppSelector((s) => s.session.user);
+export const useUser = (): HotSpot.Store.UserState["user"] =>
+	useAppSelector((s) => s.session.user);

@@ -1,29 +1,16 @@
-import { AnyAction } from "redux";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { csrfFetch } from "./csrf";
-import { ThunkDispatchFn } from "./store";
+import type { PayloadAction } from "@reduxjs/toolkit";
 
-const SET_USER = "session/setUser";
-const REMOVE_USER = "session/removeUser";
-
-/** @param {HotSpot.Store.User | null} user */
-function setUser(user: HotSpot.Store.User | null) {
-	return {
-		type: SET_USER,
-		payload: user,
-	};
-}
-
-const removeUser = () => {
-	return {
-		type: REMOVE_USER,
-	};
-};
-
-export function login(user: {
-	credential: string;
-	password: string;
-}): ThunkDispatchFn<Response> {
-	return async (dispatch) => {
+export const login = createAsyncThunk(
+	"session/login",
+	async (
+		user: {
+			credential: string;
+			password: string;
+		},
+		thunkAPI,
+	) => {
 		const { credential, password } = user;
 		const response = await csrfFetch("/api/session", {
 			method: "POST",
@@ -33,40 +20,33 @@ export function login(user: {
 			}),
 		});
 		const data = await response.json();
-		dispatch(setUser(data.user));
+		thunkAPI.dispatch(sessionSlice.actions.setUser(data.user));
 		return response;
-	};
-}
+	},
+);
 
-/**
- * @returns {import("./store").ThunkDispatchFn<Response>}
- */
-export function restoreUser(): import("./store").ThunkDispatchFn<Response> {
-	return async (dispatch) => {
+export const restoreUser = createAsyncThunk(
+	"session/restore",
+	async (_none: void, thunkAPI) => {
 		const response = await csrfFetch("/api/session");
 		const data = await response.json();
-		dispatch(setUser(data.user));
+		thunkAPI.dispatch(sessionSlice.actions.setUser(data.user));
 		return response;
-	};
-}
+	},
+);
 
-/**
- * @param {Object} user
- * @param {string} user.username
- * @param {string} user.firstName
- * @param {string} user.lastName
- * @param {string} user.email
- * @param {string} user.password
- * @returns {import("./store").ThunkDispatchFn<Response>}
- */
-export function signup(user: {
-	username: string;
-	firstName: string;
-	lastName: string;
-	email: string;
-	password: string;
-}): import("./store").ThunkDispatchFn<Response> {
-	return async (dispatch) => {
+export const signup = createAsyncThunk(
+	"session/signup",
+	async (
+		user: {
+			username: string;
+			firstName: string;
+			lastName: string;
+			email: string;
+			password: string;
+		},
+		thunkAPI,
+	) => {
 		const { username, firstName, lastName, email, password } = user;
 		const response = await csrfFetch("/api/users", {
 			method: "POST",
@@ -79,40 +59,38 @@ export function signup(user: {
 			}),
 		});
 		const data = await response.json();
-		dispatch(setUser(data.user));
+		thunkAPI.dispatch(sessionSlice.actions.setUser(data.user));
 		return response;
-	};
-}
-/**
- * @returns {import("./store").ThunkDispatchFn<Response>}
- */
-export function logout(): import("./store").ThunkDispatchFn<Response> {
-	return async (dispatch) => {
+	},
+);
+
+export const logout = createAsyncThunk(
+	"session/logout",
+	async (_: void, thunkAPI) => {
 		const response = await csrfFetch("/api/session", {
 			method: "DELETE",
 		});
-		dispatch(removeUser());
+		thunkAPI.dispatch(sessionSlice.actions.removeUser());
 		return response;
-	};
-}
+	},
+);
 
 type UserState = HotSpot.Store.UserState;
 
-/** @type {UserState} */
 const initialState: UserState = { user: null };
 
-const sessionReducer: import("react").Reducer<UserState, AnyAction> = (
-	state = initialState,
-	action,
-) => {
-	switch (action.type) {
-		case SET_USER:
-			return { ...state, user: action.payload };
-		case REMOVE_USER:
-			return { ...state, user: null };
-		default:
-			return state;
-	}
-};
+const sessionSlice = createSlice({
+	name: "session",
+	initialState,
+	reducers: {
+		setUser: (state, action: PayloadAction<HotSpot.Store.User>) => {
+			state.user = action.payload;
+		},
 
-export default sessionReducer;
+		removeUser: (state) => {
+			state.user = null;
+		},
+	},
+});
+
+export default sessionSlice.reducer;
