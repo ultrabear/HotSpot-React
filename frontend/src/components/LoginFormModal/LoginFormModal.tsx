@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import * as sessionActions from "../../store/session";
-import { useModal } from "../../context/Modal";
+import { useModal } from "../../context/useModal";
 import "./LoginForm.css";
 import { useAppDispatch } from "../../store/store";
 

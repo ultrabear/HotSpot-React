@@ -14,11 +14,8 @@ interface ModalContextTy {
 	setOnModalClose: (_: () => void) => void;
 }
 
-const ModalContext = createContext({} as ModalContextTy);
+export const ModalContext = createContext({} as ModalContextTy);
 
-/**
- * @param {import("react").PropsWithChildren<{}>} param0
- */
 export function ModalProvider<T>({
 	children,
 }: import("react").PropsWithChildren<T>) {
@@ -71,4 +68,4 @@ export function Modal() {
 	);
 }
 
-export const useModal = () => useContext(ModalContext);
+

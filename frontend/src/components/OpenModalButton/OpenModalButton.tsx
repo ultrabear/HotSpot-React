@@ -1,4 +1,4 @@
-import { useModal } from "../../context/Modal";
+import { useModal } from "../../context/useModal";
 
 interface OpenModalButtonTy {
 	//eslint-disable-next-line @typescript-eslint/no-explicit-any

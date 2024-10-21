@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useModal } from "../../context/Modal";
+import { useModal } from "../../context/useModal";
 import * as sessionActions from "../../store/session";
 import "./SignupForm.css";
 import { useAppDispatch } from "../../store/store";

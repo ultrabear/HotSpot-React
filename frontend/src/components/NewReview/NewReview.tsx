@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useModal } from "../../context/Modal";
+import { useModal } from "../../context/useModal";
 import { jsonPost } from "../../store/csrf";
 
 import { IoIosStar, IoIosStarOutline } from "react-icons/io";
