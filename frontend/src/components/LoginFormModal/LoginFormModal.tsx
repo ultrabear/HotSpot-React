@@ -26,7 +26,7 @@ function LoginFormModal() {
 	};
 
 	useEffect(() => {
-		let err: typeof vErrs = {};
+		const err: typeof vErrs = {};
 
 		if (credential.length !== 0 && credential.length < 4) {
 			err.user = "Login credential must be at least 4 characters";

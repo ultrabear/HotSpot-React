@@ -3,6 +3,7 @@ import { useRef, createContext } from "react";
 import "./Modal.css";
 import { createPortal } from "react-dom";
 
+//eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ModalContent = any;
 
 interface ModalContextTy {
@@ -18,9 +19,9 @@ const ModalContext = createContext({} as ModalContextTy);
 /**
  * @param {import("react").PropsWithChildren<{}>} param0
  */
-export function ModalProvider({
+export function ModalProvider<T>({
 	children,
-}: import("react").PropsWithChildren<{}>) {
+}: import("react").PropsWithChildren<T>) {
 	/** @type {React.MutableRefObject<HTMLDivElement | null>} */
 	const modalRef: React.MutableRefObject<HTMLDivElement | null> = useRef(null);
 

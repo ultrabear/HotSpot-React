@@ -12,14 +12,14 @@ const rootReducer = combineReducers({
 });
 
 let enhancer;
-//@ts-ignore
+//@ts-expect error aa crap
 if (import.meta.env.MODE === "production") {
 	enhancer = applyMiddleware(thunk);
 } else {
-	//@ts-ignore
+	//@ts-expect-error debugging crap
 	const logger = (await import("redux-logger")).default;
 	const composeEnhancers =
-		//@ts-ignore
+		//@ts-expect-error debugging crap
 		window["__REDUX_DEVTOOLS_EXTENSION_COMPOSE__"] || compose;
 	enhancer = composeEnhancers(applyMiddleware(thunk, logger));
 }

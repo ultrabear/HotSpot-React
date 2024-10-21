@@ -135,7 +135,7 @@ function EditSpotPage() {
 			setVErrs({ ...vErrs, [name]: `Please set a valid ${pretty}${fmt}` });
 		} else {
 			const rest = { ...vErrs };
-			//@ts-ignore
+			//@ts-expect-error the typeing here is a mess
 			delete rest[name];
 			setVErrs(rest);
 		}

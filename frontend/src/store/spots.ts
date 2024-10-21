@@ -5,6 +5,12 @@ import { AnyAction } from "redux";
 import { ThunkDispatchFn, RootState } from "./store";
 import { Reducer } from "react";
 
+function unused<T>(v: T) {
+	//@ts-expect-error unused
+	//eslint-disable-next-line @typescript-eslint/no-unused-vars
+	const _ = v;
+}
+
 function toNormalized(spot: HotSpot.API.BulkSpot): HotSpot.Store.Spot {
 	const { previewImage, avgRating, ...rest } = spot;
 
@@ -160,9 +166,9 @@ const spotsReducer: Reducer<HotSpot.Store.SpotState, AnyAction> = (
 ) => {
 	switch (action.type) {
 		case DELETE_SPOT: {
-			const { [action.payload]: unused, ...newState } = state;
+			const { [action.payload]: _unused, ...newState } = state;
 
-			unused;
+			unused(_unused);
 
 			return newState;
 		}

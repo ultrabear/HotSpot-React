@@ -1,6 +1,5 @@
 // frontend/src/store/csrf.js
 
-//@ts-ignore
 import Cookies from "js-cookie";
 
 export const csrfFetch: typeof fetch = async (url: string, options = {}) => {
@@ -13,11 +12,11 @@ export const csrfFetch: typeof fetch = async (url: string, options = {}) => {
 	// "application/json", and set the "XSRF-TOKEN" header to the value of the
 	// "XSRF-TOKEN" cookie
 	if (options.method.toUpperCase() !== "GET") {
-		//@ts-ignore
+		//@ts-expect-error aa crap
 		options.headers["Content-Type"] =
-			//@ts-ignore
+			//@ts-expect-error aa crap
 			options.headers["Content-Type"] || "application/json";
-		//@ts-ignore
+		//@ts-expect-error aa crap
 		options.headers["XSRF-Token"] = Cookies.get("XSRF-TOKEN");
 	}
 	// call the default window's fetch with the url and the options passed in

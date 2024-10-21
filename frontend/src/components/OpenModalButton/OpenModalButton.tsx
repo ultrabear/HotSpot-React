@@ -1,6 +1,7 @@
 import { useModal } from "../../context/Modal";
 
 interface OpenModalButtonTy {
+	//eslint-disable-next-line @typescript-eslint/no-explicit-any
     modalComponent: any;
     buttonText: string;
     onButtonClick?: (() => void);

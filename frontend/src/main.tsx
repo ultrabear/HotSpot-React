@@ -12,19 +12,20 @@ import { Modal, ModalProvider } from "./context/Modal";
 
 const store = configureStore();
 
-//@ts-ignore
 if (import.meta.env.MODE !== "production") {
 	restoreCSRF();
 
-	//@ts-ignore
+	//@ts-expect-error aa crap
 	window["csrfFetch"] = csrfFetch;
-	//@ts-ignore
+	//@ts-expect-error aa crap
 	window["store"] = store;
-	//@ts-ignore
+	//@ts-expect-error aa crap
 	window["sessionActions"] = sessionActions;
 }
 
-function assume<T>(a: T | null): T  { return (a) as T };
+function assume<T>(a: T | null): T {
+	return a as T;
+}
 
 const root = createRoot(assume(document.getElementById("root"))).render(
 	<React.StrictMode>

@@ -6,12 +6,6 @@ import { TextInput, FormSection } from "./TextInput";
 
 import "./SpotForm.css";
 
-/**
- * @param {Record<string, string | number>} details
- * @param {string[]} imgUrls
- * @returns {Promise<number>}
- *
- */
 async function createSpot(
 	details: Record<string, string | number>,
 	imgUrls: string[],
@@ -92,7 +86,7 @@ function NewSpotModal() {
 		name: string,
 		val: string,
 		pretty: string,
-		vErrs: any,
+		vErrs: Record<string, string>,
 	) => {
 		setFormInput({
 			...formInput,
@@ -106,7 +100,7 @@ function NewSpotModal() {
 		let last = fmt.length ? fmt : `${pretty} is required`;
 
 		if (name in snowFlakes) {
-			//@ts-ignore
+			//@ts-expect-error im lazy
 			last = snowFlakes[name];
 		}
 
@@ -114,7 +108,6 @@ function NewSpotModal() {
 			return { ...vErrs, [name]: last };
 		} else {
 			const rest = { ...vErrs };
-			//@ts-ignore
 			delete rest[name];
 			return rest;
 		}
@@ -123,7 +116,7 @@ function NewSpotModal() {
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
-		const forms = Object.entries({
+		const formsData = {
 			country: "Country",
 			address: "Address",
 			city: "City",
@@ -132,15 +125,17 @@ function NewSpotModal() {
 			name: "Name",
 			price: "Price",
 			previewImage: "Preview Image",
-		});
+		};
+
+		const forms = Object.entries(formsData);
 
 		let errs = {};
 
 		for (const data of forms) {
 			const [name, pretty] = data;
 
-			//@ts-ignore
-			errs = handleChangeInner(name, formInput[name], pretty, errs);
+			//@ts-expect-error Object.entries mangles the typeinfo, maybe fix?
+			errs = handleChangeInner(name, (formInput[name] as string), pretty, errs);
 		}
 
 		setVErrs(errs);

@@ -6,7 +6,7 @@ function transformImages(
 	images: { url: string; id: number }[],
 	reviewId: number,
 ): HotSpot.Store.ReviewImage[] {
-	let out: HotSpot.Store.ReviewImage[] = [];
+	const out: HotSpot.Store.ReviewImage[] = [];
 
 	for (const i of images) {
 		try {

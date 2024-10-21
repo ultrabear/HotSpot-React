@@ -13,7 +13,7 @@ function ProfileButton({ user }: { user: HotSpot.Store.User | null; }) {
 	const dispatch = useAppDispatch();
 	const [showMenu, setShowMenu] = useState(false);
 	const [goHome, setGoHome] = useState(false);
-	let nav = useNavigate();
+	const nav = useNavigate();
 
 	const ulRef: React.MutableRefObject<HTMLUListElement | null> = useRef(null);
 
@@ -34,7 +34,7 @@ function ProfileButton({ user }: { user: HotSpot.Store.User | null; }) {
 		if (!showMenu) return;
 
 		const closeMenu = (e: MouseEvent) => {
-			//@ts-ignore
+			//@ts-expect-error e.target is a thing i hope
 			if (ulRef.current && !ulRef.current.contains(e.target)) {
 				setShowMenu(false);
 			}

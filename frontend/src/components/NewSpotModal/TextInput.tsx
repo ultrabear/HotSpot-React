@@ -13,7 +13,7 @@ export function TextInput({
 	place?: string;
 	extra: {
 		formInput: Record<string, string>;
-		handleChange: (e: any, pretty: string) => void;
+		handleChange: (e: unknown, pretty: string) => void;
 		vErrs: Record<string, string>;
 	};
 }) {
