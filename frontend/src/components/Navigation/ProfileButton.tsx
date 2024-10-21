@@ -9,23 +9,15 @@ import SignupFormModal from "../SignupFormModal/SignupFormModal";
 import { useAppDispatch } from "../../store/store";
 import { Link, useNavigate } from "react-router-dom";
 
-/**
- * @param {Object} param0
- * @param {HotSpot.Store.User | null} param0.user
- * */
-function ProfileButton({ user }) {
+function ProfileButton({ user }: { user: HotSpot.Store.User | null; }) {
 	const dispatch = useAppDispatch();
 	const [showMenu, setShowMenu] = useState(false);
 	const [goHome, setGoHome] = useState(false);
 	let nav = useNavigate();
 
-	/** @type {React.MutableRefObject<HTMLUListElement | null>} */
-	const ulRef = useRef(null);
+	const ulRef: React.MutableRefObject<HTMLUListElement | null> = useRef(null);
 
-	/**
-	 * @param {React.MouseEvent<HTMLButtonElement, MouseEvent>} e
-	 */
-	const logout = (e) => {
+	const logout = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
 		e.preventDefault();
 		setGoHome(true);
 		dispatch(sessionActions.logout());
@@ -33,10 +25,7 @@ function ProfileButton({ user }) {
 
 	const ulClassName = "profile-dropdown" + (showMenu ? "" : " hidden");
 
-	/**
-	 * @param {React.MouseEvent<HTMLButtonElement, MouseEvent>} e
-	 */
-	const toggleMenu = (e) => {
+	const toggleMenu = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
 		e.stopPropagation(); // Keep click from bubbling up to document and triggering closeMenu
 		setShowMenu(!showMenu);
 	};
@@ -44,10 +33,7 @@ function ProfileButton({ user }) {
 	useEffect(() => {
 		if (!showMenu) return;
 
-		/**
-		 * @param {MouseEvent} e
-		 */
-		const closeMenu = (e) => {
+		const closeMenu = (e: MouseEvent) => {
 			//@ts-ignore
 			if (ulRef.current && !ulRef.current.contains(e.target)) {
 				setShowMenu(false);

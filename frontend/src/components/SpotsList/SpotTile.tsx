@@ -5,12 +5,7 @@ import OpenModalButton from "../OpenModalButton/OpenModalButton";
 import { deleteSpot } from "../../store/spots";
 import DeleteModal from "../DeleteModal/DeleteModal";
 
-/**
- * @param {Object} prop
- * @param {number} prop.spotId
- * @param {boolean} [prop.crud]
- */
-function SpotTile({ spotId, crud }) {
+function SpotTile({ spotId, crud }: { spotId: number; crud?: boolean; }) {
 	const addModOpts = crud === true;
 	const dispatch = useAppDispatch();
 

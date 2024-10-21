@@ -1,81 +1,100 @@
 import { useState } from "react";
-import { useUser } from "../../store/store";
+import { useAppDispatch, useAppSelector, useUser } from "../../store/store";
 import { jsonPost } from "../../store/csrf";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { getSpot } from "../../store/spots";
 import { TextInput, FormSection } from "./TextInput";
 
-import "./SpotForm.css";
+type CheckStatus = "no" | "yes" | "checking";
 
-/**
- * @param {Record<string, string | number>} details
- * @param {string[]} imgUrls
- * @returns {Promise<number>}
- *
- */
-const createSpot = async (details, imgUrls) => {
-	const res = await jsonPost("/api/spots", details);
+async function editSpot(
+	details: Record<string, string | number>,
+	id: number,
+): Promise<number> {
+	const res = await jsonPost(`/api/spots/${id}`, details, "PUT");
 
 	const spot = await res.json();
 
-	const images = imgUrls.map((url, idx) =>
-		jsonPost(`/api/spots/${spot.id}/images`, { url, preview: idx === 0 }),
-	);
-
-	await Promise.all(images);
-
 	return spot.id;
-};
+}
 
-function NewSpotModal() {
+function EditSpotPage() {
+	const { spotId } = useParams();
+	const dispatch = useAppDispatch();
+
+	const id = Number(spotId);
+
+	const [checked, setChecked] = useState("no" as CheckStatus);
+
+	const spot = useAppSelector((s) => (id in s.spots ? s.spots[id] : null));
+
 	const [formInput, setFormInput] = useState({
 		country: "",
 		address: "",
 		city: "",
 		state: "",
+		lat: "",
+		lng: "",
 		description: "",
 		name: "",
 		price: "",
-		previewImage: "",
 	});
-	const [imageSlots, setImageSlots] = useState(["", "", "", ""]);
-	const [escape, setEscape] = useState(/** @type {false | number} */ (false));
-	const [errors, setErrors] = useState(
-		/** @type {Record<string, string>} */ ({}),
-	);
+	const [escape, setEscape] = useState(false as false | number);
+	const [errors, setErrors] = useState({} as Record<string, string>);
 	const [vErrs, setVErrs] = useState(
-		/** @type {{
-		 country?: string,
-		 address?: string,
-		 city?: string,
-		 state?: string,
-		 description?: string,
-		 name?: string,
-		 price?: string,
-		 previewImage?: string,
-		}} */ ({}),
+		{} as {
+			country?: string;
+			address?: string;
+			city?: string;
+			state?: string;
+			lat?: string;
+			lng?: string;
+			description?: string;
+			name?: string;
+			price?: string;
+		},
 	);
 	const nav = useNavigate();
+
+	if (checked === "no") {
+		setChecked("checking");
+		(async () => {
+			try {
+				const details = await dispatch(getSpot(id));
+
+				setFormInput({
+					country: details.country,
+					address: details.address,
+					city: details.city,
+					state: details.state,
+					lat: String(details.lat),
+					lng: String(details.lng),
+					description: details.description,
+					name: details.name,
+					price: String(details.price),
+				});
+			} finally {
+				setChecked("yes");
+			}
+		})();
+	}
 
 	/**
 	 * @param {unknown} v
 	 * @returns { true | string }
 	 */
 
-	const numcheck = (v) => (isNaN(Number(v)) ? "Price per night is required" : true);
+	const numcheck = (v: unknown): true | string =>
+		isNaN(Number(v)) ? "(a number)" : true;
 
 	/**
 	 * @type {Record<string, (v: string) => true | string>}
 	 */
-	const validators = {
-		description: (v) => (v.length >= 30 ? true : "Description needs 30 or more characters"),
+	const validators: Record<string, (v: string) => true | string> = {
+		description: (v) => (v.length >= 30 ? true : "at least 30 characters"),
 		price: numcheck,
-	};
-
-	const snowFlakes = {
-		description: "Description needs 30 or more characters",
-		price: "Price per night is required",
-		previewImage: "Preview Image URL is required",
-
+		lat: numcheck,
+		lng: numcheck,
 	};
 
 	const user = useUser();
@@ -87,20 +106,22 @@ function NewSpotModal() {
 	/**  @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>} e
 	 * @param {string} pretty
 	 * */
-	const handleChange = (e, pretty) => {
+	function handleChange(
+		e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+		pretty: string,
+	) {
 		const val = e.target.value;
 		const name = e.target.name;
 
-		setVErrs(handleChangeInner(name, val, pretty, vErrs));
-	};
+		handleChangeInner(name, val, pretty);
+	}
 
 	/**
 	 * @param {string} name
 	 * @param {string} val
 	 * @param {string} pretty
-	 * @param {any} vErrs
 	 * */
-	const handleChangeInner = (name, val, pretty, vErrs) => {
+	function handleChangeInner(name: string, val: string, pretty: string) {
 		setFormInput({
 			...formInput,
 			[name]: val,
@@ -110,68 +131,33 @@ function NewSpotModal() {
 
 		const fmt = vname !== true ? ` ${vname}` : "";
 
-		let last = fmt.length ? fmt : `${pretty} is required`
-
-		if (name in snowFlakes) {
-			//@ts-ignore
-			last = snowFlakes[name];
-		}
-
-
-
 		if (val.length === 0 || vname !== true) {
-			return { ...vErrs, [name]: last };
+			setVErrs({ ...vErrs, [name]: `Please set a valid ${pretty}${fmt}` });
 		} else {
 			const rest = { ...vErrs };
 			//@ts-ignore
 			delete rest[name];
-			return rest;
+			setVErrs(rest);
 		}
-	};
+	}
 
 	/**
 	 * @param {React.FormEvent<HTMLFormElement>} e
 	 */
-	const handleSubmit = (e) => {
+	function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 
-		const forms = Object.entries({
-			country: "Country",
-			address: "Address",
-			city: "City",
-			state: "State",
-			description: "Description",
-			name: "Name",
-			price: "Price",
-			previewImage: "Preview Image",
-		});
+		const { lat, lng, price, ...rest } = formInput;
 
-		let errs = {};
-
-		for (const data of forms) {
-			const [name, pretty] = data;
-
-			//@ts-ignore
-			errs = handleChangeInner(name, formInput[name], pretty, errs);
-		}
-
-		setVErrs(errs);
-
-		if (Object.keys(errs).length !== 0) {
-			return;
-		}
-
-		const { price, previewImage, ...rest } = formInput;
-
-		createSpot({ lat: 10, lng: 10, price: Number(price), ...rest }, [
-			previewImage,
-			...imageSlots.filter((s) => s.length),
-		])
+		editSpot(
+			{ lat: Number(lat), lng: Number(lng), price: Number(price), ...rest },
+			Number(spot?.id),
+		)
 			.then(setEscape)
 			.catch(async (e) => {
 				setErrors((await e.json()).errors);
 			});
-	};
+	}
 
 	const extra = { formInput, handleChange, vErrs };
 
@@ -181,7 +167,7 @@ function NewSpotModal() {
 
 	return (
 		<div className="SpotForm">
-			<h1 data-testid="form-title">Create a New Spot</h1>
+			<h1>Update your Spot</h1>
 			<ul className="Global errors">
 				{Object.entries(errors).map(([k, v]) => (
 					<h3 key={k}>{v}</h3>
@@ -243,42 +229,21 @@ function NewSpotModal() {
 						backName="price"
 						place="Price per night (USD)"
 						extra={extra}
-						customType="number"
 					/>
 				</FormSection>
-				<FormSection
-					index={5}
-					heading="Liven up your spot with photos"
-					caption="Submit a link to at least one photo to publish your spot."
+
+				<button
+					type="submit"
+					disabled={
+						Object.values(formInput).some((s) => s.length === 0) ||
+						Object.keys(vErrs).length !== 0
+					}
 				>
-					<TextInput
-						frontName=""
-						backName="previewImage"
-						place="Preview Image URL"
-						extra={extra}
-						customType="url"
-					/>
-					{imageSlots.map((img, idx) => (
-						<input
-							type="url"
-							key={idx}
-							name={String(idx)}
-							value={img}
-							placeholder="Image URL"
-							onChange={(e) =>
-								setImageSlots(
-									imageSlots.map((i, idx) =>
-										idx === Number(e.target.name) ? e.target.value : i,
-									),
-								)
-							}
-						/>
-					))}
-				</FormSection>
-				<button type="submit">Create Spot</button>
+					Update your Spot
+				</button>
 			</form>
 		</div>
 	);
 }
 
-export default NewSpotModal;
+export default EditSpotPage;

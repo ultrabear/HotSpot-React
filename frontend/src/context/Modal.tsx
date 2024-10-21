@@ -3,32 +3,31 @@ import { useRef, createContext } from "react";
 import "./Modal.css";
 import { createPortal } from "react-dom";
 
-/**
- * @typedef {any} ModalContent
- */
+type ModalContent = any;
 
-/**
- * @typedef {Object} ModalContextTy
- * @property {React.MutableRefObject<HTMLDivElement | null>} modalRef
- * @property {ModalContent} modalContent
- * @property {(_: ModalContent) => void} setModalContent
- * @property {() => void} closeModal
- * @property {(_: () => void) => void} setOnModalClose
- */
+interface ModalContextTy {
+	modalRef: React.MutableRefObject<HTMLDivElement | null>;
+	modalContent: ModalContent;
+	setModalContent: (_: ModalContent) => void;
+	closeModal: () => void;
+	setOnModalClose: (_: () => void) => void;
+}
 
-const ModalContext = createContext(/** @type {ModalContextTy} */ ({}));
+const ModalContext = createContext({} as ModalContextTy);
 
 /**
  * @param {import("react").PropsWithChildren<{}>} param0
  */
-export function ModalProvider({ children }) {
+export function ModalProvider({
+	children,
+}: import("react").PropsWithChildren<{}>) {
 	/** @type {React.MutableRefObject<HTMLDivElement | null>} */
-	const modalRef = useRef(null);
+	const modalRef: React.MutableRefObject<HTMLDivElement | null> = useRef(null);
 
 	const [modalContent, setModalContent] = useState(null);
 
 	const [onModalClose, setOnModalClose] = useState(
-		/** @type {(() => () => void) | null} */ (null),
+		null as (() => () => void) | null,
 	);
 
 	const closeModal = () => {

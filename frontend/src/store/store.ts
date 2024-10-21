@@ -23,42 +23,29 @@ if (import.meta.env.MODE === "production") {
 		window["__REDUX_DEVTOOLS_EXTENSION_COMPOSE__"] || compose;
 	enhancer = composeEnhancers(applyMiddleware(thunk, logger));
 }
-/**
- * @typedef {ReturnType<typeof rootReducer>} RootState
- */
 
-/**
- * @param {RootState} [preloadedState]
- */
-const configureStore = (preloadedState) => {
+export type RootState = ReturnType<typeof rootReducer>
+
+const configureStore = (preloadedState?: RootState) => {
 	return createStore(rootReducer, preloadedState, enhancer);
 };
 
 export default configureStore;
 
-/**
- * @typedef {import("redux").AnyAction} AnyAction
- * @typedef {import("react").Dispatch<AnyAction>} Dispatch
- */
 
-/**
- * @template {object} T
- * @typedef {((dispatch: Dispatch) => Promise<T>)} ThunkDispatchFn
- */
 
-/**
- * @typedef {{
- * (inp:AnyAction): AnyAction;
- * <T>(inp:(_: Dispatch) => Promise<T>): Promise<T>;
- * }} DispatchTy
- */
+type AnyAction = import("redux").AnyAction;
 
-/** @type {() => DispatchTy} */
-export const useAppDispatch = useDispatch;
+type Dispatch = import("react").Dispatch<AnyAction>;
 
-/**
- * @type {<T>(_: (_: RootState) => T) => T}
- * */
-export const useAppSelector = useSelector;
-/** @returns {HotSpot.Store.UserState['user']} */
-export const useUser = () => useAppSelector((s) => s.session.user);
+export type ThunkDispatchFn<T> = (dispatch: Dispatch) => Promise<T>;
+
+type DispatchTy = {
+	(inp: AnyAction): AnyAction;
+	<T>(inp: (_: Dispatch) => Promise<T>): Promise<T>;
+};
+
+export const useAppDispatch: () => DispatchTy = useDispatch;
+
+export const useAppSelector: <T>(_: (_: RootState) => T) => T = useSelector;
+export const useUser = (): HotSpot.Store.UserState['user'] => useAppSelector((s) => s.session.user);

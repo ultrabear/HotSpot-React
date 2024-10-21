@@ -24,12 +24,7 @@ if (import.meta.env.MODE !== "production") {
 	window["sessionActions"] = sessionActions;
 }
 
-/**
- * @template {any} T
- * @param {T | null} a
- * @returns {T}
- * */
-const assume = (a) => /** @type {T} */ (a);
+function assume<T>(a: T | null): T  { return (a) as T };
 
 const root = createRoot(assume(document.getElementById("root"))).render(
 	<React.StrictMode>

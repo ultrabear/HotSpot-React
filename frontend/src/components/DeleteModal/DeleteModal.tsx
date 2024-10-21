@@ -10,13 +10,13 @@ import "./DeleteModal.css";
  * @param {string} param0.internal
  * @param {(v: T) => void} [param0.returns]
  */
-function DeleteModal({
+function DeleteModal<T>({
 	deleteCallback,
 	confirmText,
 	buttonType,
 	returns,
 	internal,
-}) {
+}: { deleteCallback: () => Promise<T>; confirmText: string; buttonType: string; internal: string; returns?: (v: T) => void; }) {
 	const { closeModal } = useModal();
 
 	const runDelete = async () => {

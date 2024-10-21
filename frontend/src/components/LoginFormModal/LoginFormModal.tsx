@@ -8,16 +8,11 @@ function LoginFormModal() {
 	const dispatch = useAppDispatch();
 	const [credential, setCredential] = useState("");
 	const [password, setPassword] = useState("");
-	const [errors, setErrors] = useState(/** @type {{message?: string}} */ ({}));
-	const [vErrs, setVErrs] = useState(
-		/** @type {{pass?: string, user?: string}} */ ({}),
-	);
+	const [errors, setErrors] = useState({} as { message?: string });
+	const [vErrs, setVErrs] = useState({} as { pass?: string; user?: string });
 	const { closeModal } = useModal();
 
-	/**
-	 * @param {React.FormEvent<HTMLFormElement>} e
-	 */
-	const handleSubmit = (e) => {
+	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		setErrors({});
 		dispatch(sessionActions.login({ credential, password }))
@@ -31,8 +26,7 @@ function LoginFormModal() {
 	};
 
 	useEffect(() => {
-		/** @type {typeof vErrs} */
-		let err = {};
+		let err: typeof vErrs = {};
 
 		if (credential.length !== 0 && credential.length < 4) {
 			err.user = "Login credential must be at least 4 characters";
@@ -45,8 +39,7 @@ function LoginFormModal() {
 		setVErrs(err);
 	}, [credential, password]);
 
-	/** @param {React.MouseEvent<HTMLButtonElement, MouseEvent>} e */
-	function demoLogin(e) {
+	function demoLogin(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
 		e.preventDefault();
 
 		return dispatch(

@@ -3,11 +3,7 @@ import ProfileButton from "./ProfileButton";
 import "./Navigation.css";
 import { useAppSelector } from "../../store/store";
 
-/**
- * @param {Object} param0
- * @param {boolean} param0.isLoaded
- */
-function Navigation({ isLoaded }) {
+function Navigation({ isLoaded }: { isLoaded: boolean; }) {
 	const sessionUser = useAppSelector((state) => state.session.user);
 
 	return (

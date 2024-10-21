@@ -1,16 +1,15 @@
 import { createSelector } from "reselect";
 import { csrfFetch } from "./csrf";
 import { upgradeTimeStamps } from "./util";
+import { AnyAction } from "redux";
+import { ThunkDispatchFn, RootState } from "./store";
+import { Reducer } from "react";
 
-/**
- * @param {HotSpot.API.BulkSpot} spot
- * @returns {HotSpot.Store.Spot}
- */
-function toNormalized(spot) {
+function toNormalized(spot: HotSpot.API.BulkSpot): HotSpot.Store.Spot {
 	const { previewImage, avgRating, ...rest } = spot;
 
 	/** @type {HotSpot.Store.Spot} */
-	const data = upgradeTimeStamps({
+	const data: HotSpot.Store.Spot = upgradeTimeStamps({
 		...rest,
 		partial: true,
 		images: {},
@@ -38,11 +37,11 @@ function toNormalized(spot) {
  * @param {HotSpot.API.SingleSpot} spot
  * @returns {HotSpot.Store.Spot}
  */
-function normalizeSingle(spot) {
+function normalizeSingle(spot: HotSpot.API.SingleSpot): HotSpot.Store.Spot {
 	const { Owner, avgStarRating, SpotImages, ...rest } = spot;
 
 	/** @type {HotSpot.Store.Spot} */
-	const data = upgradeTimeStamps({
+	const data: HotSpot.Store.Spot = upgradeTimeStamps({
 		...rest,
 		partial: false,
 		owner: Owner,
@@ -80,9 +79,7 @@ function normalizeSingle(spot) {
 	return data;
 }
 
-/**
- * @typedef { { payload: HotSpot.API.BulkSpot[] } & import("./store").AnyAction   } SpotsFromAPI
- */
+type SpotsFromAPI = { payload: HotSpot.API.BulkSpot[] } & AnyAction;
 
 const HYDRATE_MANY_SPOTS = "spots/HYDRATE_MANY";
 
@@ -90,77 +87,77 @@ const HYDRATE_MANY_SPOTS = "spots/HYDRATE_MANY";
  * @param {HotSpot.API.AllSpots} apiResults
  * @returns {SpotsFromAPI}
  */
-const setSpotsFromAPI = (apiResults) => {
+function setSpotsFromAPI(apiResults: HotSpot.API.AllSpots): SpotsFromAPI {
 	return {
 		type: HYDRATE_MANY_SPOTS,
 		payload: apiResults.Spots,
 	};
-};
+}
 
-/**
- * @param {number} page
- * @param {number} size
- * @returns {import("./store").ThunkDispatchFn<HotSpot.API.AllSpots>}
- */
-export const getSpots =
-	(page = 1, size = 10) =>
-	async (dispatch) => {
+export function getSpots(
+	page: number = 1,
+	size: number = 10,
+): ThunkDispatchFn<HotSpot.API.AllSpots> {
+	return async (dispatch) => {
 		const response = await csrfFetch(`/api/spots?page=${page}&size=${size}`);
 		const data = /** @type {HotSpot.API.AllSpots} */ (await response.json());
 		dispatch(setSpotsFromAPI(data));
 		return data;
 	};
+}
 
 const HYDRATE_SINGLE_SPOT = "spots/HYDRATE_SINGLE";
 
 /**
  * @param {HotSpot.API.SingleSpot} apiResults
  */
-const singleSpotInsert = (apiResults) => {
+function singleSpotInsert(apiResults: HotSpot.API.SingleSpot) {
 	return {
 		type: HYDRATE_SINGLE_SPOT,
 		payload: apiResults,
 	};
-};
+}
 
 const DELETE_SPOT = "spots/DELETE_SINGLE";
 
 /**
  * @param {number} id
  */
-const deleteSpotAction = (id) => {
+function deleteSpotAction(id: number) {
 	return { type: DELETE_SPOT, payload: id };
-};
+}
 
 /**
  * @param {number} id
  * @returns {import("./store").ThunkDispatchFn<HotSpot.API.SingleSpot>}
  */
-export const getSpot = (id) => async (dispatch) => {
-	const response = await csrfFetch(`/api/spots/${id}`);
-	const data = /** @type {HotSpot.API.SingleSpot} */ (await response.json());
-	dispatch(singleSpotInsert(data));
-	return data;
-};
+export function getSpot(id: number): ThunkDispatchFn<HotSpot.API.SingleSpot> {
+	return async (dispatch) => {
+		const response = await csrfFetch(`/api/spots/${id}`);
+		const data = /** @type {HotSpot.API.SingleSpot} */ (await response.json());
+		dispatch(singleSpotInsert(data));
+		return data;
+	};
+}
 
 /**
  * @param {number} id
  * @returns {import("./store").ThunkDispatchFn<Response>}
  */
-export const deleteSpot = (id) => async (dispatch) => {
-	const res = await csrfFetch(`/api/spots/${id}`, { method: "DELETE" });
-	dispatch(deleteSpotAction(id));
-	return res;
-};
+export function deleteSpot(id: number): ThunkDispatchFn<Response> {
+	return async (dispatch) => {
+		const res = await csrfFetch(`/api/spots/${id}`, { method: "DELETE" });
+		dispatch(deleteSpotAction(id));
+		return res;
+	};
+}
 
-/** @type {HotSpot.Store.SpotState} */
-const initialState = {};
+const initialState: HotSpot.Store.SpotState = {};
 
-/**
- * @template {import("./store").AnyAction} A
- * @type {import("react").Reducer<HotSpot.Store.SpotState, A>}
- */
-const spotsReducer = (state = initialState, action) => {
+const spotsReducer: Reducer<HotSpot.Store.SpotState, AnyAction> = (
+	state = initialState,
+	action,
+) => {
 	switch (action.type) {
 		case DELETE_SPOT: {
 			const { [action.payload]: unused, ...newState } = state;
@@ -212,7 +209,7 @@ const spotsReducer = (state = initialState, action) => {
 };
 
 export const spotsList = createSelector(
-	[/** @param {import("./store").RootState} store; */ (store) => store.spots],
+	[(store: RootState) => store.spots],
 	(spots) => {
 		const spotsArr = Object.values(spots);
 		spotsArr.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
@@ -222,10 +219,10 @@ export const spotsList = createSelector(
 
 export const currentSpots = createSelector(
 	[
-		/** @param {import("./store").RootState} store; @param {number | undefined} userId */ (
-			store,
-			userId,
-		) => ({ s: store.spots, u: userId }),
+		(store: RootState, userId: number | undefined) => ({
+			s: store.spots,
+			u: userId,
+		}),
 	],
 	({ s: spots, u: userId }) => {
 		const spotsArr = Object.values(spots).filter((s) => s.ownerId === userId);

@@ -1,23 +1,18 @@
 import { useModal } from "../../context/Modal";
 
-/**
- * @typedef {Object} OpenModalButtonTy
- * @property {any} modalComponent
- * @property {string} buttonText
- * @property {(() => void)} [onButtonClick]
- * @property {(() => void)} [onModalClose]
- *
- */
+interface OpenModalButtonTy {
+    modalComponent: any;
+    buttonText: string;
+    onButtonClick?: (() => void);
+    onModalClose?: (() => void);
+}
 
-/**
- * @param {React.PropsWithRef<OpenModalButtonTy>} param0
- */
 function OpenModalButton({
 	modalComponent,
 	buttonText,
 	onButtonClick,
 	onModalClose,
-}) {
+}: React.PropsWithRef<OpenModalButtonTy>) {
 	const { setModalContent, setOnModalClose } = useModal();
 
 	const onClick = () => {

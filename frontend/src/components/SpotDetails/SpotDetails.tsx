@@ -9,24 +9,16 @@ import OpenModalButton from "../OpenModalButton/OpenModalButton";
 import NewReview from "../NewReview/NewReview";
 import DeleteModal from "../DeleteModal/DeleteModal";
 
-/**
- * @typedef {"no" | "yes" | "checking"} CheckStatus
- */
+type CheckStatus = "yes" | "no" | "checking";
 
-/**
- * @param {CheckStatus} checked
- * @returns {boolean}
- */
-function checking(checked) {
+function checking(checked: CheckStatus): boolean {
 	return checked === "no" || checked === "checking";
 }
 
-/**
- * @param {Object} param0
- * @param {number} param0.reviewId
- * @param {(_: CheckStatus) => void} param0.setCheckReview
- * */
-function Review({ reviewId, setCheckReview }) {
+function Review({
+	reviewId,
+	setCheckReview,
+}: { reviewId: number; setCheckReview: (_: CheckStatus) => void }) {
 	const review = useAppSelector((s) => s.reviews.all[reviewId]);
 	const user = useUser();
 	const dispatch = useAppDispatch();
@@ -79,10 +71,8 @@ function SpotDetails() {
 
 	const id = Number(spotId);
 
-	const [checked, setChecked] = useState(/** @type {CheckStatus}*/ ("no"));
-	const [checkReview, setCheckReview] = useState(
-		/** @type {CheckStatus}*/ ("no"),
-	);
+	const [checked, setChecked] = useState("no" as CheckStatus);
+	const [checkReview, setCheckReview] = useState("no" as CheckStatus);
 
 	const spot = useAppSelector((s) => (id in s.spots ? s.spots[id] : null));
 
@@ -135,8 +125,9 @@ function SpotDetails() {
 
 	images.sort((a, b) => Number(b.preview) - Number(a.preview));
 
-	const preview = images[0]?.url?.toString() ?? "";
-	const rest = images.slice(1);
+	const preview = spot.previewImage?.toString() ?? "";
+
+	const rest = images[0]?.preview ? images.slice(1) : images;
 
 	const reviewFmt = (
 		<span data-testid="review-count">

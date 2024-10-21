@@ -1,9 +1,6 @@
 import { FaRegStar } from "react-icons/fa";
-/**
- * @param {HotSpot.Store.Spot} spot
- * @returns {JSX.Element}
- * */
-export function formatRating(spot) {
+
+export function formatRating(spot: HotSpot.Store.Spot): JSX.Element {
 	return spot.avgRating ? (
 		<>
 			<FaRegStar />

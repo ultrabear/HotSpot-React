@@ -4,15 +4,14 @@ import * as sessionActions from "../../store/session";
 import "./SignupForm.css";
 import { useAppDispatch } from "../../store/store";
 
-/**
- * @typedef {Object} ErrorsTy
- * @property {string} [email]
- * @property {string} [username]
- * @property {string} [firstName]
- * @property {string} [lastName]
- * @property {string} [password]
- * @property {string} [confirmPassword]
- */
+interface ErrorsTy {
+	email?: string;
+	username?: string;
+	firstName?: string;
+	lastName?: string;
+	password?: string;
+	confirmPassword?: string;
+}
 
 function SignupFormModal() {
 	const dispatch = useAppDispatch();
@@ -22,13 +21,10 @@ function SignupFormModal() {
 	const [lastName, setLastName] = useState("");
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
-	const [errors, setErrors] = useState(/** @type {ErrorsTy} */ ({}));
+	const [errors, setErrors] = useState({} as ErrorsTy);
 	const { closeModal } = useModal();
 
-	/**
-	 * @param {React.FormEvent<HTMLFormElement>} e
-	 */
-	const handleSubmit = (e) => {
+	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		if (password === confirmPassword) {
 			setErrors({});
@@ -56,11 +52,7 @@ function SignupFormModal() {
 		});
 	};
 
-	/**
-	 * @param {string} s
-	 * @returns {boolean}
-	 * */
-	const e = (s) => s.length === 0;
+	const e = (s: string): boolean => s.length === 0;
 
 	const disabled =
 		e(email) ||

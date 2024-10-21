@@ -1,14 +1,12 @@
+import { AnyAction } from "redux";
 import { csrfFetch } from "./csrf";
 import { upgradeTimeStamps } from "./util";
 
-/**
- * @param {{url: string, id: number}[]} images
- * @param {number} reviewId
- * @returns {HotSpot.Store.ReviewImage[]}
- */
-function transformImages(images, reviewId) {
-	/** @type {HotSpot.Store.ReviewImage[]} */
-	let out = [];
+function transformImages(
+	images: { url: string; id: number }[],
+	reviewId: number,
+): HotSpot.Store.ReviewImage[] {
+	let out: HotSpot.Store.ReviewImage[] = [];
 
 	for (const i of images) {
 		try {
@@ -27,7 +25,9 @@ function transformImages(images, reviewId) {
  * @param {HotSpot.API.SpotReview}  review
  * @returns {HotSpot.Store.Review}
  */
-function transformSpotReview(review) {
+function transformSpotReview(
+	review: HotSpot.API.SpotReview,
+): HotSpot.Store.Review {
 	const { User, ReviewImages, ...rest } = review;
 
 	return upgradeTimeStamps({
@@ -42,30 +42,32 @@ const SPOT_REVIEWS = "reviews/FOR_SPOT";
 /**
  * @param {HotSpot.API.SpotReviews} apiResults
  */
-const insertSpotReviews = (apiResults) => {
+function insertSpotReviews(apiResults: HotSpot.API.SpotReviews) {
 	return {
 		type: SPOT_REVIEWS,
 		payload: apiResults,
 	};
-};
+}
 
 /**
  * @param {number} spotId
  * @returns {import("./store").ThunkDispatchFn<Response>}
  */
-export const getReviews = (spotId) => async (dispatch) => {
-	const response = await csrfFetch(`/api/spots/${spotId}/reviews`);
-	const data = /** @type {HotSpot.API.SpotReviews} */ (await response.json());
-	dispatch(insertSpotReviews(data));
-	return response;
-};
+export const getReviews =
+	(spotId: number): import("./store").ThunkDispatchFn<Response> =>
+	async (dispatch) => {
+		const response = await csrfFetch(`/api/spots/${spotId}/reviews`);
+		const data = /** @type {HotSpot.API.SpotReviews} */ (await response.json());
+		dispatch(insertSpotReviews(data));
+		return response;
+	};
 
 const DELETE_REVIEW = "reviews/DELETE_SINGLE";
 
 /**
  * @param {number} reviewId
  */
-const deleteReviewActor = (reviewId) => {
+const deleteReviewActor = (reviewId: number) => {
 	return { type: DELETE_REVIEW, payload: reviewId };
 };
 
@@ -73,27 +75,28 @@ const deleteReviewActor = (reviewId) => {
  * @param {number} reviewId
  * @returns {import("./store").ThunkDispatchFn<Object>}
  */
-export const deleteReview = (reviewId) => async (dispatch) => {
-	const response = await csrfFetch(`/api/reviews/${reviewId}`, {
-		method: "DELETE",
-	});
-	const res = await response.json();
-	dispatch(deleteReviewActor(reviewId));
-	return res;
-};
+export const deleteReview =
+	(reviewId: number): import("./store").ThunkDispatchFn<object> =>
+	async (dispatch) => {
+		const response = await csrfFetch(`/api/reviews/${reviewId}`, {
+			method: "DELETE",
+		});
+		const res = await response.json();
+		dispatch(deleteReviewActor(reviewId));
+		return res;
+	};
 
 /** @type {HotSpot.Store.ReviewState} */
-const initialState = { all: {}, map: {} };
+const initialState: HotSpot.Store.ReviewState = { all: {}, map: {} };
 
-/**
- * @template {import("./store").AnyAction} A
- * @type {import("react").Reducer<HotSpot.Store.ReviewState, A>}
- */
-const reviewsReducer = (state = initialState, action) => {
+const reviewsReducer: import("react").Reducer<
+	HotSpot.Store.ReviewState,
+	AnyAction
+> = (state = initialState, action) => {
 	switch (action.type) {
 		case DELETE_REVIEW: {
 			/** @type {number} */
-			const reviewId = action.payload;
+			const reviewId: number = action.payload;
 
 			const newState = { map: { ...state.map }, all: { ...state.all } };
 
@@ -111,7 +114,7 @@ const reviewsReducer = (state = initialState, action) => {
 			const newState = { map: { ...state.map }, all: { ...state.all } };
 
 			/** @type {HotSpot.API.SpotReviews} */
-			const payload = action.payload;
+			const payload: HotSpot.API.SpotReviews = action.payload;
 
 			for (const itm of payload.Reviews) {
 				const review = transformSpotReview(itm);

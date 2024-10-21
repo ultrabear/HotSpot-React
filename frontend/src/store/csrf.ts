@@ -3,10 +3,7 @@
 //@ts-ignore
 import Cookies from "js-cookie";
 
-/**
- * @type {typeof fetch}
- * */
-export async function csrfFetch(url, options = {}) {
+export const csrfFetch: typeof fetch = async (url: string, options = {}) => {
 	// set options.method to 'GET' if there is no method
 	options.method = options.method || "GET";
 	// set options.headers to an empty object if there is no headers
@@ -16,8 +13,11 @@ export async function csrfFetch(url, options = {}) {
 	// "application/json", and set the "XSRF-TOKEN" header to the value of the
 	// "XSRF-TOKEN" cookie
 	if (options.method.toUpperCase() !== "GET") {
+		//@ts-ignore
 		options.headers["Content-Type"] =
+			//@ts-ignore
 			options.headers["Content-Type"] || "application/json";
+		//@ts-ignore
 		options.headers["XSRF-Token"] = Cookies.get("XSRF-TOKEN");
 	}
 	// call the default window's fetch with the url and the options passed in
@@ -30,19 +30,17 @@ export async function csrfFetch(url, options = {}) {
 	// if the response status code is under 400, then return the response to the
 	// next promise chain
 	return res;
-}
+};
 
 export function restoreCSRF() {
 	return csrfFetch("/api/csrf/restore");
 }
 
-/**
- * @param {string} url
- * @param {Object} body
- * @param {string} method
- * @returns {Promise<Response>}
- */
-export async function jsonPost(url, body, method = "POST") {
+export async function jsonPost(
+	url: string,
+	body: object,
+	method: string = "POST",
+): Promise<Response> {
 	return csrfFetch(url, {
 		method,
 		body: JSON.stringify(body),

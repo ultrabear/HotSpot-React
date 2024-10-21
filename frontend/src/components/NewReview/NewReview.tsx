@@ -4,20 +4,18 @@ import { jsonPost } from "../../store/csrf";
 
 import { IoIosStar, IoIosStarOutline } from "react-icons/io";
 
-/**
- * @param {Object} param0
- * @param {number} param0.spotId
- * @param {() => void} param0.onClose
- */
-function NewReview({ spotId, onClose }) {
+function NewReview({
+	spotId,
+	onClose,
+}: { spotId: number; onClose: () => void }) {
 	const [review, setReview] = useState("");
-	const [errs, setErrs] = useState({});
+	const [errs, setErrs] = useState({} as Record<string, string>);
 
 	const { closeModal } = useModal();
 	const [stars, setStars] = useState(0);
 
 	/** @param {React.FormEvent<HTMLFormElement>} e */
-	const onSubmit = async (e) => {
+	const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
 		try {
@@ -29,7 +27,7 @@ function NewReview({ spotId, onClose }) {
 			onClose();
 			closeModal();
 		} catch (e) {
-			setErrs((await /**@type{Response}*/ (e).json()).errors);
+			setErrs((await (e as Response).json()).errors);
 		}
 	};
 
